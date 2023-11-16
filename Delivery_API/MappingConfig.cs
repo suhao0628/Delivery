@@ -13,7 +13,9 @@ namespace Delivery_API
             CreateMap<User, UserRegisterModel>().ReverseMap();
 
             CreateMap<Dish, DishDto>().ReverseMap();
-            
+            CreateMap<Basket, DishBasketDto>().ReverseMap();
+
+
         }
     }
 }
