@@ -8,6 +8,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Text;
+using System.Text.Json.Serialization;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,13 +18,18 @@ builder.Services.AddDbContext<AppDbContext>(option => {
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
-builder.Services.AddControllers();
+builder.Services.AddControllers().
+    AddJsonOptions(options =>
+{
+    //serialization of Enum as String
+    options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
+}); ;
 
 
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
-
+builder.Services.AddScoped<IDishService, DishService>();
 
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -100,6 +106,14 @@ builder.Services.AddAuthentication
 
 
 var app = builder.Build();
+
+//SeedData
+//using (var scope = app.Services.CreateScope())
+//{
+//    var services = scope.ServiceProvider;
+
+//    Initializer.Initialize(services);
+//}
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

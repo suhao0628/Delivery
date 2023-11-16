@@ -48,7 +48,7 @@ namespace Delivery_API.Controllers
         [HttpPost("login")]
         [AllowAnonymous]
         [ProducesResponseType(typeof(TokenResponse), 200)]
-        [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest))]
+        [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Response), 500)]
         public async Task<ActionResult<TokenResponse>> Login([FromBody] LoginCredentials login)
         {

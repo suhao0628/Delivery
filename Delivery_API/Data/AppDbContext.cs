@@ -9,5 +9,7 @@ namespace Delivery_API.Data
         {
         }
         public DbSet<User> Users { get; set; }
+
+        public DbSet<Dish> Dishes { get; set; }
     }
 }

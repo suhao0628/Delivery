@@ -11,6 +11,9 @@ namespace Delivery_API
         {
             CreateMap<User, UserDto>().ReverseMap();
             CreateMap<User, UserRegisterModel>().ReverseMap();
+
+            CreateMap<Dish, DishDto>().ReverseMap();
+            
         }
     }
 }
