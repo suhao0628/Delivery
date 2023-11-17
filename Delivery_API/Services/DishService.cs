@@ -122,6 +122,7 @@ namespace Delivery_API.Services
             {
                 throw new Exception("dish not found");
             }
+            
             return _mapper.Map<DishDto>(dish);
         }
     }

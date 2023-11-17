@@ -2,6 +2,7 @@
 using Delivery_API.Models;
 using Delivery_API.Models.Dto;
 using Delivery_API.Models.Entity;
+using System.Collections.Generic;
 
 namespace Delivery_API
 {
@@ -14,6 +15,11 @@ namespace Delivery_API
 
             CreateMap<Dish, DishDto>().ReverseMap();
             CreateMap<Basket, DishBasketDto>().ReverseMap();
+
+            CreateMap<Order, OrderCreateDto>().ReverseMap();
+           // CreateMap<List<OrderInfoDto>, List<Order>>().ReverseMap();
+            //CreateMap<List<DishBasketDto>, List <OrderBasket>>().ReverseMap();
+            
 
 
         }
