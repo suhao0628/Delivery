@@ -1,5 +1,4 @@
-﻿using Azure;
-using Delivery_API.Models.Dto;
+﻿using Delivery_API.Models.Dto;
 using Delivery_API.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;

@@ -17,5 +17,7 @@ namespace Delivery_API.Data
         public DbSet<Order> Orders { get; set; }
 
         public DbSet<OrderBasket> OrderBaskets { get; set; }
+
+        public DbSet<Rating> Ratings { get; set; }
     }
 }

@@ -26,11 +26,13 @@ namespace Delivery_API.Services
             {
                 throw new Exception();
             }
+
+
             List<DishBasketDto> dishBasketDtos = new List<DishBasketDto>();
             foreach (var item in carts)
             {
                 DishBasketDto dishBasketDto = new DishBasketDto();
-                dishBasketDto.Id = item.Id;
+                dishBasketDto.Id = item.DishId;
                 dishBasketDto.Name = item.Name;
                 dishBasketDto.Price = item.Price;
                 dishBasketDto.TotalPrice = item.TotalPrice;
@@ -49,31 +51,27 @@ namespace Delivery_API.Services
                 Address = carts.FirstOrDefault().Order.Address
             };
 
-
-            
-
-           
-
+ 
             return orderDto;
         }
 
 
         public async Task<List<OrderInfoDto>> GetOrders(Guid userId)
         {
-            List<OrderInfoDto> orderListViewModels = new List<OrderInfoDto>();
+            List<OrderInfoDto> orderInfoDtos = new List<OrderInfoDto>();
             var orders = await _context.Orders.Where(w => w.UserId == userId).ToListAsync();
             foreach (var item in orders)
             {
-                OrderInfoDto orderListViewModel = new OrderInfoDto();
-                orderListViewModel.Id = item.Id;
-                orderListViewModel.DeliveryTime = item.DeliveryTime;
-                orderListViewModel.OrderTime = item.OrderTime;
-                orderListViewModel.Price = item.Price;
-                orderListViewModel.Status = item.Status;
-                orderListViewModels.Add(orderListViewModel);
+                OrderInfoDto orderInfoDto = new OrderInfoDto();
+                orderInfoDto.Id = item.Id;
+                orderInfoDto.DeliveryTime = item.DeliveryTime;
+                orderInfoDto.OrderTime = item.OrderTime;
+                orderInfoDto.Price = item.Price;
+                orderInfoDto.Status = item.Status;
+                orderInfoDtos.Add(orderInfoDto);
             }
 
-            return orderListViewModels;//_mapper.Map<List<OrderInfoDto>>(orders);
+            return orderInfoDtos;//_mapper.Map<List<OrderInfoDto>>(orders);
         }
 
         public async Task CreateOrder(OrderCreateDto orderCreateDto, Guid userId)
@@ -101,7 +99,7 @@ namespace Delivery_API.Services
                     {
                         Id = Guid.NewGuid(),
                         OrderId = order.Id,
-
+                        DishId = basketItem.Dish.Id,
                         Name = basketItem.Dish.Name,
                         Price = basketItem.Dish.Price,
                         TotalPrice = basketItem.Dish.Price * basketItem.Amount,

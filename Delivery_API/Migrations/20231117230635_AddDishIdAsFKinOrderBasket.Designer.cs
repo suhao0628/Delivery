@@ -4,6 +4,7 @@ using Delivery_API.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Delivery_API.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20231117230635_AddDishIdAsFKinOrderBasket")]
+    partial class AddDishIdAsFKinOrderBasket
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -148,30 +151,6 @@ namespace Delivery_API.Migrations
                     b.ToTable("OrderBaskets");
                 });
 
-            modelBuilder.Entity("Delivery_API.Models.Entity.Rating", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("DishId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<int>("RatingScore")
-                        .HasColumnType("int");
-
-                    b.Property<Guid>("UserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("DishId");
-
-                    b.HasIndex("UserId");
-
-                    b.ToTable("Ratings");
-                });
-
             modelBuilder.Entity("Delivery_API.Models.Entity.User", b =>
                 {
                     b.Property<Guid>("Id")
@@ -254,25 +233,6 @@ namespace Delivery_API.Migrations
                     b.Navigation("Dish");
 
                     b.Navigation("Order");
-                });
-
-            modelBuilder.Entity("Delivery_API.Models.Entity.Rating", b =>
-                {
-                    b.HasOne("Delivery_API.Models.Entity.Dish", "Dish")
-                        .WithMany()
-                        .HasForeignKey("DishId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("Delivery_API.Models.Entity.User", "User")
-                        .WithMany()
-                        .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Dish");
-
-                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("Delivery_API.Models.Entity.Order", b =>

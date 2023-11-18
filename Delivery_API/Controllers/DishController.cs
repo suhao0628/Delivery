@@ -1,7 +1,10 @@
-﻿using Azure;
+﻿
+using Delivery_API.Models;
 using Delivery_API.Models.Dto;
 using Delivery_API.Models.Enum;
 using Delivery_API.Services.IServices;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
@@ -52,5 +55,52 @@ namespace Delivery_API.Controllers
             return Ok(await _dishService.GetDishDetails(id));
         }
         #endregion
+
+        #region Checks if user is able to set rating of the dish
+        /// <summary>
+        /// Checks if user is able to set rating of the dish
+        /// </summary>
+        /// <param name="id"></param>
+        /// <returns></returns>
+        [HttpGet("{id}/rating/check")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(void), 401)]
+        [ProducesResponseType(typeof(void), 403)]
+        [ProducesResponseType(typeof(void), 404)]
+        [ProducesResponseType(typeof(Response), 500)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> CheckRating(Guid id)
+        {
+            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+
+            return Ok(await _dishService.CheckRating(id, userId));
+        }
+        #endregion
+
+        #region Set a rating for a dish
+        /// <summary>
+        ///  Set a rating for a dish
+        /// </summary>
+        /// <param name="id"></param>
+        /// <param name="ratingScore"></param>
+        /// <returns></returns>
+        [HttpPost("{id}/rating")]
+        [ProducesResponseType(200)]
+        [ProducesResponseType(typeof(void), 400)]
+        [ProducesResponseType(typeof(void), 401)]
+        [ProducesResponseType(typeof(void), 403)]
+        [ProducesResponseType(typeof(void), 404)]
+        [ProducesResponseType(typeof(Response), 500)]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
+        public async Task<IActionResult> SetRating(Guid id, int ratingScore)
+        {
+            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+
+            await _dishService.SetRating(id, ratingScore, userId);
+            return Ok();
+        }
+        #endregion
+
+
     }
 }

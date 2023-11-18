@@ -13,6 +13,10 @@ namespace Delivery_API.Models.Entity
         [ForeignKey("OrderId")]
         public Order Order { get; set; }
 
+        public Guid DishId { get; set; }
+
+        [ForeignKey("DishId")]
+
         [Required]
         [MinLength(1)]
         public string Name { get; set; }

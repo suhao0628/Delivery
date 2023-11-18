@@ -14,6 +14,7 @@ namespace Delivery_API.Models.Entity
         [ForeignKey("UserId")]
         public User User { get; set; }
 
+        public List<OrderBasket> OrderBaskets { get; set; }
         [Required]
         public DateTime DeliveryTime { get; set; }
 
