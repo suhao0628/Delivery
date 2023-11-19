@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Delivery_API.Data;
+using Delivery_API.Exceptions;
 using Delivery_API.Models.Dto;
 using Delivery_API.Models.Entity;
 using Delivery_API.Models.Enum;
@@ -11,12 +12,10 @@ namespace Delivery_API.Services
     public class OrderService: IOrderService
     {
         private readonly AppDbContext _context;
-        private readonly IMapper _mapper;
 
-        public OrderService(AppDbContext context, IMapper mapper)
+        public OrderService(AppDbContext context)
         {
             _context = context;
-            _mapper = mapper;
         }
 
         public async Task<OrderDto> GetOrderDetails(Guid orderId)
@@ -28,16 +27,18 @@ namespace Delivery_API.Services
             }
 
 
-            List<DishBasketDto> dishBasketDtos = new List<DishBasketDto>();
+            List<DishBasketDto> dishBasketDtos = new();
             foreach (var item in carts)
             {
-                DishBasketDto dishBasketDto = new DishBasketDto();
-                dishBasketDto.Id = item.DishId;
-                dishBasketDto.Name = item.Name;
-                dishBasketDto.Price = item.Price;
-                dishBasketDto.TotalPrice = item.TotalPrice;
-                dishBasketDto.Amount = item.Amount;
-                dishBasketDto.Image = item.Image;
+                DishBasketDto dishBasketDto = new()
+                {
+                    Id = item.DishId,
+                    Name = item.Name,
+                    Price = item.Price,
+                    TotalPrice = item.TotalPrice,
+                    Amount = item.Amount,
+                    Image = item.Image
+                };
                 dishBasketDtos.Add(dishBasketDto);
             }
             OrderDto orderDto = new()
@@ -47,7 +48,7 @@ namespace Delivery_API.Services
                 OrderTime = carts.FirstOrDefault().Order.OrderTime,
                 Status = carts.FirstOrDefault().Order.Status,
                 Price = carts.FirstOrDefault().Price,
-                Dishes = dishBasketDtos,///_mapper.Map<List<DishBasketDto>>(carts),
+                Dishes = dishBasketDtos,
                 Address = carts.FirstOrDefault().Order.Address
             };
 
@@ -58,20 +59,22 @@ namespace Delivery_API.Services
 
         public async Task<List<OrderInfoDto>> GetOrders(Guid userId)
         {
-            List<OrderInfoDto> orderInfoDtos = new List<OrderInfoDto>();
+            List<OrderInfoDto> orderInfoDtos = new();
             var orders = await _context.Orders.Where(w => w.UserId == userId).ToListAsync();
             foreach (var item in orders)
             {
-                OrderInfoDto orderInfoDto = new OrderInfoDto();
-                orderInfoDto.Id = item.Id;
-                orderInfoDto.DeliveryTime = item.DeliveryTime;
-                orderInfoDto.OrderTime = item.OrderTime;
-                orderInfoDto.Price = item.Price;
-                orderInfoDto.Status = item.Status;
+                OrderInfoDto orderInfoDto = new()
+                {
+                    Id = item.Id,
+                    DeliveryTime = item.DeliveryTime,
+                    OrderTime = item.OrderTime,
+                    Price = item.Price,
+                    Status = item.Status
+                };
                 orderInfoDtos.Add(orderInfoDto);
             }
 
-            return orderInfoDtos;//_mapper.Map<List<OrderInfoDto>>(orders);
+            return orderInfoDtos;
         }
 
         public async Task CreateOrder(OrderCreateDto orderCreateDto, Guid userId)
@@ -79,16 +82,17 @@ namespace Delivery_API.Services
             var baskets = await _context.Baskets.Where(b => b.UserId == userId).Include(b => b.Dish).ToListAsync();
             if (baskets.Any())
             {
-                //var order = _mapper.Map<Order>(orderCreateDto);
-                Order order = new Order();
-                order.Id = Guid.NewGuid();
-                order.UserId = userId;
-                order.Address = orderCreateDto.Address;
-                order.DeliveryTime = orderCreateDto.DeliveryTime;
+                Order order = new()
+                {
+                    Id = Guid.NewGuid(),
+                    UserId = userId,
+                    Address = orderCreateDto.Address,
+                    DeliveryTime = orderCreateDto.DeliveryTime
+                };
 
                 int allTotalPrice = 0;
 
-                List<OrderBasket> carts = new List<OrderBasket>();
+                List<OrderBasket> carts = new();
 
                 foreach (var basketItem in baskets)
                 {
@@ -131,12 +135,12 @@ namespace Delivery_API.Services
             var order = await _context.Orders.FindAsync(orderId);
             if (order == null)
             {
-                throw new Exception();
+                throw new NotFoundException("Order not found");
             }
 
             if (order.UserId != userId)
             {
-                throw new Exception();
+                throw new NotFoundException("Invalid order user");
             }
 
             order.Status = OrderStatus.Delivered;

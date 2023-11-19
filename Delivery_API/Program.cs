@@ -19,6 +19,12 @@ builder.Services.AddDbContext<AppDbContext>(option => {
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"));
 });
 
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    options.Configuration = builder.Configuration.GetConnectionString("Redis");
+    options.InstanceName = "Delivery";
+});
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddControllers().
     AddJsonOptions(options =>
 {
@@ -44,7 +50,8 @@ builder.Services.AddSwaggerGen(options =>
         Title = "Delivery_API",
         Version = "v1",
         Description = ""
-    });
+    }
+    );
     //Generate comment
     var xmlFilename = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
 
@@ -83,7 +90,10 @@ builder.Services.AddSwaggerGen(options =>
 
 
 //Authentication
+builder.Services.Configure<JwtConfigurations>(
+    builder.Configuration.GetSection("Jwt"));
 var jwtConfig = builder.Configuration.GetSection("Jwt").Get<JwtConfigurations>();
+
 
 builder.Services.AddAuthentication
     (authoption => {

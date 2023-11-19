@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Delivery_API.Data;
+using Delivery_API.Exceptions;
 using Delivery_API.Models;
 using Delivery_API.Models.Dto;
 using Delivery_API.Models.Entity;
@@ -16,19 +17,19 @@ namespace Delivery_API.Services
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        private readonly IJwtService _jwtRepository;
-        public UserService(AppDbContext context, IMapper mapper, IJwtService jwtRepository)
+        private readonly IJwtService _jwtService;
+        public UserService(AppDbContext context, IMapper mapper, IJwtService jwtService)
         {
             _context = context;
             _mapper = mapper;
-            _jwtRepository = jwtRepository;
+            _jwtService = jwtService;
         }
         public async Task<TokenResponse> Register(UserRegisterModel register)
         {
             var user = await _context.Users.FirstOrDefaultAsync(x => x.Email == register.Email);
             if(user!=null)
             {
-                throw new Exception(register.Email + " is already taken");
+                throw new BadRequestException(register.Email + " is already taken");
             }
             var registerUser = _mapper.Map<User>(register);
 
@@ -37,7 +38,7 @@ namespace Delivery_API.Services
 
             return new TokenResponse
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(_jwtRepository.CreateToken(registerUser))
+                Token = new JwtSecurityTokenHandler().WriteToken(_jwtService.CreateToken(registerUser))
             };
         }
         public async Task<TokenResponse> Login(LoginCredentials login)
@@ -46,25 +47,25 @@ namespace Delivery_API.Services
 
             if (user == null)
             {
-                throw new Exception("User does not exist");
+                throw new NotFoundException("User does not exist");
             }
             if (user.Password != login.Password)
             {
-                throw new Exception("Invaild Password");
+                throw new BadRequestException("Invaild Password");
             }
             return new TokenResponse
             {
-                Token = new JwtSecurityTokenHandler().WriteToken(_jwtRepository.CreateToken(user))
+                Token = new JwtSecurityTokenHandler().WriteToken(_jwtService.CreateToken(user))
             };
         }
-
+        
         public async Task<UserDto> GetProfile(Guid userId)
         {
             var user = await _context.Users.FindAsync(userId);
 
             if (user == null)
             {
-                throw new Exception("User does not exist");
+                throw new NotFoundException("User does not exist");
             }
             return _mapper.Map<UserDto>(user);
         }
@@ -74,7 +75,7 @@ namespace Delivery_API.Services
 
             if (user == null)
             {
-                throw new Exception("User does not exist");
+                throw new NotFoundException("User does not exist");
             }
 
             user.FullName = profile.FullName;

@@ -1,6 +1,7 @@
 ﻿
 using Delivery_API.Models;
 using Delivery_API.Models.Dto;
+using Delivery_API.Models.Entity;
 using Delivery_API.Services.IServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
@@ -28,14 +29,19 @@ namespace Delivery_API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}")]
-        [ProducesResponseType(typeof(IEnumerable<OrderDto>), 200)]
-        [ProducesResponseType(typeof(void), 401)]
-        [ProducesResponseType(typeof(void), 403)]
-        [ProducesResponseType(typeof(void), 404)]
-        [ProducesResponseType(typeof(Response), 500)]
+        [ProducesResponseType(typeof(IEnumerable<OrderDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetOrderDetails(Guid id)
         {
-            return Ok(await _orderService.GetOrderDetails(id));
+            try
+            {
+                return Ok(await _orderService.GetOrderDetails(id));
+            }
+            catch
+            {
+                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
+            }
         }
         #endregion
 
@@ -45,15 +51,20 @@ namespace Delivery_API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [ProducesResponseType(typeof(IEnumerable<OrderInfoDto>), 200)]
-        [ProducesResponseType(typeof(void), 401)]
-        [ProducesResponseType(typeof(void), 403)]
-        [ProducesResponseType(typeof(void), 404)]
-        [ProducesResponseType(typeof(Response), 500)]
+        [ProducesResponseType(typeof(IEnumerable<OrderInfoDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetOrders()
         {
-            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
-            return Ok(await _orderService.GetOrders(userId));
+            try
+            {
+                var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+                return Ok(await _orderService.GetOrders(userId));
+            }
+            catch
+            {
+                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
+            }
         }
         #endregion
 
@@ -64,16 +75,21 @@ namespace Delivery_API.Controllers
         /// <param name="orderCreateDto"></param>
         /// <returns></returns>
         [HttpPost]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(void), 400)]
-        [ProducesResponseType(typeof(void), 401)]
-        [ProducesResponseType(typeof(void), 403)]
-        [ProducesResponseType(typeof(Response), 500)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateOrder([FromBody] OrderCreateDto orderCreateDto)
         {
-            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
-            await _orderService.CreateOrder(orderCreateDto, userId);
-            return Ok();
+            try
+            {
+                var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+                await _orderService.CreateOrder(orderCreateDto, userId);
+                return Ok("Order created successfully");
+            }
+            catch
+            {
+                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
+            }
         }
         #endregion
 
@@ -84,17 +100,22 @@ namespace Delivery_API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpPost("{id}/status")]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(void), 400)]
-        [ProducesResponseType(typeof(void), 401)]
-        [ProducesResponseType(typeof(void), 403)]
-        [ProducesResponseType(typeof(void), 404)]
-        [ProducesResponseType(typeof(Response), 500)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ConfirmDelivery(Guid id)
         {
-            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
-            await _orderService.ConfirmDelivery(id, userId);
-            return Ok();
+            try
+            {
+                var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+                await _orderService.ConfirmDelivery(id, userId);
+                return Ok("Confirm Delivered");
+            }
+            catch
+            {
+                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
+            }
         }
         #endregion
 

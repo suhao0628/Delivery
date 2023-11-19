@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Delivery_API.Data;
+using Delivery_API.Exceptions;
 using Delivery_API.Models;
 using Delivery_API.Models.Dto;
 using Delivery_API.Models.Entity;
@@ -27,23 +28,12 @@ namespace Delivery_API.Services
 
         public async Task<DishPagedListDto> GetDish(DishCategory[] category, DishSorting sorting, bool vegetarian, int page)
         {
-
             IQueryable<Dish> dishQueryable = _context.Dishes;
 
             //filter by category
-            //if(!category.IsNullOrEmpty() )
-            //{
-            //    dishQueryable = dishQueryable.Where(x => category.Contains(x.Category));
-            //}
-
             dishQueryable = !category.IsNullOrEmpty() ? dishQueryable.Where(x => category != null && category.Contains(x.Category)) : dishQueryable;
             //filter by vagetarian
-            //if (vegetarian)
-            //{
-            //    dishQueryable = dishQueryable.Where(x => x.Vegetarian);
-            //}
             dishQueryable = vegetarian ? dishQueryable.Where(x => x.Vegetarian) : dishQueryable;
-
             //filter by sort
             dishQueryable = Sort(dishQueryable, sorting);
 
@@ -75,19 +65,21 @@ namespace Delivery_API.Services
                 Count = pageTotal,
                 Current = page
             };
-            List<DishDto> DishDtos = new List<DishDto>();
+            List<DishDto> DishDtos = new();
 
             foreach (var item in dishes)
             {
-                DishDto DishDto = new DishDto();
-                DishDto.Id = item.Id;
-                DishDto.Name = item.Name;
-                DishDto.Description = item.Description;
-                DishDto.Price = item.Price;
-                DishDto.Image = item.Image;
-                DishDto.Vegetarian = item.Vegetarian;
-                DishDto.Rating = item.Rating;
-                DishDto.Category = item.Category;
+                DishDto DishDto = new()
+                {
+                    Id = item.Id,
+                    Name = item.Name,
+                    Description = item.Description,
+                    Price = item.Price,
+                    Image = item.Image,
+                    Vegetarian = item.Vegetarian,
+                    Rating = item.Rating,
+                    Category = item.Category
+                };
 
                 DishDtos.Add(DishDto);
             }
@@ -111,7 +103,6 @@ namespace Delivery_API.Services
                 DishSorting.RatingDesc => dishes.OrderByDescending(d => d.Rating),
                 _ => throw new Exception()
             };
-
         }
 
         public async Task<DishDto> GetDishDetails(Guid id)
@@ -120,7 +111,7 @@ namespace Delivery_API.Services
 
             if (dish == null)
             {
-                throw new Exception("dish not found");
+                throw new NotFoundException("Dish not found");
             }
             
             return _mapper.Map<DishDto>(dish);
@@ -131,12 +122,12 @@ namespace Delivery_API.Services
             var dish = await _context.Dishes.FirstOrDefaultAsync(d => d.Id == dishId);
             if (dish == null)
             {
-                throw new Exception("dish not found");
+                throw new NotFoundException("Dish not found");
             }
             var carts = await _context.OrderBaskets.FirstOrDefaultAsync(x => x.DishId == dishId);
             if (carts == null)
             {
-                throw new Exception("cart not found");
+                throw new NotFoundException("Dish not ordered");
             }
             return await _context.Orders.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == carts.OrderId) != null;
         }
@@ -146,11 +137,11 @@ namespace Delivery_API.Services
             var dish = await _context.Dishes.FirstOrDefaultAsync(d => d.Id == dishId);
             if (dish == null)
             {
-                throw new Exception();
+                throw new NotFoundException("Dish not found");
             }
             if (!await CheckRating(dishId, userId))
             {
-                throw new Exception();
+                throw new Exception("No rights to set rating");
             }
 
             var rating = await _context.Ratings.FirstOrDefaultAsync(r => r.UserId == userId && r.DishId == dishId);

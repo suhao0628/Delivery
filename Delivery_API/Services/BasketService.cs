@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Delivery_API.Data;
+using Delivery_API.Exceptions;
 using Delivery_API.Models.Dto;
 using Delivery_API.Models.Entity;
 using Delivery_API.Services.IServices;
@@ -42,11 +43,10 @@ namespace Delivery_API.Services
 
             if (dish == null)
             {
-                throw new Exception();
+                throw new NotFoundException("Dish is not found");
             }
 
-            var baskets =
-                await _context.Baskets.FirstOrDefaultAsync(x => x.UserId == userId && x.DishId == dishId);
+            var baskets = await _context.Baskets.FirstOrDefaultAsync(x => x.UserId == userId && x.DishId == dishId);
             if (baskets == null)
             {
                 Basket basket = new()
@@ -68,20 +68,19 @@ namespace Delivery_API.Services
             }
         }
 
-
         public async Task DeleteBasket(Guid dishId, Guid userId, bool increase)
         {
             var dish = await _context.Dishes.FirstOrDefaultAsync(d => d.Id == dishId);
             if (dish == null)
             {
-                throw new Exception();
+                throw new NotFoundException("Dish is not found");
             }
             var baskets =
                 await _context.Baskets.FirstOrDefaultAsync(x => x.UserId == userId && x.DishId == dishId);
 
             if (baskets == null)
             {
-                throw new Exception();
+                throw new NotFoundException("Dish is not in Basket");
             }
 
             if (baskets.Amount == 1 || increase)

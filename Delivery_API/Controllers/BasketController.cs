@@ -13,6 +13,7 @@ namespace Delivery_API.Controllers
     [Route("api/basket")]
     [ApiController]
     [Authorize]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class BasketController : ControllerBase
     {
         private readonly IBasketService _basketService;
@@ -27,16 +28,20 @@ namespace Delivery_API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpGet]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [ProducesResponseType(typeof(IEnumerable<DishBasketDto>), 200)]
-        [ProducesResponseType(typeof(void), 401)]
-        [ProducesResponseType(typeof(Response), 500)]
+        [ProducesResponseType(typeof(IEnumerable<DishBasketDto>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetBasket()
         {
-            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
-            //Guid.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-
-            return Ok(await _basketService.GetBasket(userId));
+            try
+            {
+                var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+                return Ok(await _basketService.GetBasket(userId));
+            }
+            catch
+            {
+                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
+            }
         }
         #endregion
 
@@ -47,18 +52,23 @@ namespace Delivery_API.Controllers
         /// <param name="dishId"></param>
         /// <returns></returns>
         [HttpPost("dish/{dishId}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [ProducesResponseType(typeof(void), 200)]
-        [ProducesResponseType(typeof(void), 401)]
-        [ProducesResponseType(typeof(void), 403)]
-        [ProducesResponseType(typeof(void), 404)]
-        [ProducesResponseType(typeof(Response), 500)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddBasket(Guid dishId)
         {
-            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+            try
+            {
+                var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
 
-            await _basketService.AddBasket(dishId, userId);
-            return Ok();
+                await _basketService.AddBasket(dishId, userId);
+                return Ok("Dish added to basket successfully");
+            }
+            catch
+            {
+                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
+            }
         }
         #endregion
 
@@ -71,18 +81,22 @@ namespace Delivery_API.Controllers
         /// <returns></returns>
         /// 
         [HttpDelete("dish/{dishId}")]
-        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        [ProducesResponseType(200)]
-        [ProducesResponseType(typeof(void), 401)]
-        [ProducesResponseType(typeof(void), 403)]
-        [ProducesResponseType(typeof(void), 404)]
-        [ProducesResponseType(typeof(Response), 500)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteBasket(Guid dishId, bool increase)
         {
-            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
-
-            await _basketService.DeleteBasket(dishId, userId, increase);
-            return Ok();
+            try
+            {
+                var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+                await _basketService.DeleteBasket(dishId, userId, increase);
+                return Ok("Dish removed from basket successfully");
+            }
+            catch
+            {
+                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
+            }
         }
         #endregion
 
