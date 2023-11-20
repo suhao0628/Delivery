@@ -1,9 +1,9 @@
-﻿using Delivery_API.Models.Enum;
+﻿using Delivery_Models.Models.Enum;
 using System.ComponentModel.DataAnnotations;
 
-namespace Delivery_API.Models.Dto
+namespace Delivery_Models.Models.Dto
 {
-    public class OrderInfoDto
+    public class OrderDto
     {
         public Guid Id { get; set; }
 
@@ -18,5 +18,10 @@ namespace Delivery_API.Models.Dto
 
         [Required]
         public double Price { get; set; }
+        public List<DishBasketDto> Dishes { get; set; }
+
+        [Required]
+        [MinLength(1)]
+        public string Address { get; set; }
     }
 }

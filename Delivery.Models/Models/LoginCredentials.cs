@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Delivery_API.Models
+namespace Delivery_Models.Models
 {
     public class LoginCredentials
     {

@@ -1,15 +1,13 @@
-﻿using Delivery_API.Models.Dto;
-using Delivery_API.Models;
-using Microsoft.AspNetCore.Authorization;
+﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using Delivery_API.Services.IServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Net.Mime;
-using Microsoft.AspNetCore.Authentication.OAuth;
 using Microsoft.Net.Http.Headers;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using Delivery_Models.Models;
+using Delivery_Models.Models.Dto;
 
 namespace Delivery_API.Controllers
 {
@@ -75,7 +73,7 @@ namespace Delivery_API.Controllers
         /// </summary>
         /// <returns></returns>
         [HttpPost("logout")]
-        [AllowAnonymous]
+        [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public IActionResult Logout()
         {
@@ -91,8 +89,10 @@ namespace Delivery_API.Controllers
                         AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(expirationMinutes)
                     };
                     _cache.SetString(token, "", options);
+
+                    return Ok(new { message = "Logged Out" });
                 }
-                return Ok(new { message = "Logged Out" });
+                return BadRequest();
             }
             catch
             {

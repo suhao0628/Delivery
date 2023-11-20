@@ -1,8 +1,8 @@
-﻿using Delivery_API.Models.Enum;
+﻿using Delivery_Models.Models.Enum;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace Delivery_API.Models.Entity
+namespace Delivery_Models.Models.Entity
 {
     public class Order
     {

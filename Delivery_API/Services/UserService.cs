@@ -1,15 +1,12 @@
 ﻿using AutoMapper;
 using Delivery_API.Data;
 using Delivery_API.Exceptions;
-using Delivery_API.Models;
-using Delivery_API.Models.Dto;
-using Delivery_API.Models.Entity;
 using Delivery_API.Services.IServices;
+using Delivery_Models.Models;
+using Delivery_Models.Models.Dto;
+using Delivery_Models.Models.Entity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Win32;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 
 namespace Delivery_API.Services
 {

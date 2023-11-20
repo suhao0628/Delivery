@@ -1,5 +1,5 @@
-﻿using Delivery_API.Models.Entity;
-using Delivery_API.Models.Enum;
+﻿using Delivery_Models.Models.Entity;
+using Delivery_Models.Models.Enum;
 using Microsoft.EntityFrameworkCore;
 
 namespace Delivery_API.Data

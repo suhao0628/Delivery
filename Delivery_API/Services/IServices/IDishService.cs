@@ -1,5 +1,5 @@
-﻿using Delivery_API.Models.Dto;
-using Delivery_API.Models.Enum;
+﻿using Delivery_Models.Models.Dto;
+using Delivery_Models.Models.Enum;
 
 namespace Delivery_API.Services.IServices
 {

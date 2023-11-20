@@ -1,5 +1,5 @@
-﻿using Delivery_API.Models.Entity;
-using Delivery_API.Services.IServices;
+﻿using Delivery_API.Services.IServices;
+using Delivery_Models.Models.Entity;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;

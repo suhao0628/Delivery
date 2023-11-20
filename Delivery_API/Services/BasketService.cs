@@ -1,11 +1,9 @@
-﻿using AutoMapper;
-using Delivery_API.Data;
+﻿using Delivery_API.Data;
 using Delivery_API.Exceptions;
-using Delivery_API.Models.Dto;
-using Delivery_API.Models.Entity;
 using Delivery_API.Services.IServices;
+using Delivery_Models.Models.Dto;
+using Delivery_Models.Models.Entity;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 
 namespace Delivery_API.Services
 {

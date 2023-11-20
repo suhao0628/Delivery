@@ -1,12 +1,9 @@
-﻿using Delivery_API.Models;
-using Delivery_API.Models.Dto;
-using Delivery_API.Models.Entity;
-using Delivery_API.Services.IServices;
+﻿using Delivery_API.Services.IServices;
+using Delivery_Models.Models;
+using Delivery_Models.Models.Dto;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Claims;
 
 namespace Delivery_API.Controllers
 {

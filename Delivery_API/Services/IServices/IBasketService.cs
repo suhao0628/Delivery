@@ -1,4 +1,4 @@
-﻿using Delivery_API.Models.Dto;
+﻿using Delivery_Models.Models.Dto;
 
 namespace Delivery_API.Services.IServices
 {

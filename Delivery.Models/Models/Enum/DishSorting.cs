@@ -1,4 +1,4 @@
-﻿namespace Delivery_API.Models.Enum
+﻿namespace Delivery_Models.Models.Enum
 {
     public enum DishSorting
     {

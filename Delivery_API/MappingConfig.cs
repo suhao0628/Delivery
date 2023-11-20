@@ -1,7 +1,7 @@
 ﻿using AutoMapper;
-using Delivery_API.Models;
-using Delivery_API.Models.Dto;
-using Delivery_API.Models.Entity;
+using Delivery_Models.Models;
+using Delivery_Models.Models.Dto;
+using Delivery_Models.Models.Entity;
 using System.Collections.Generic;
 
 namespace Delivery_API

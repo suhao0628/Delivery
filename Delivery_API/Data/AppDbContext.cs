@@ -1,4 +1,4 @@
-﻿using Delivery_API.Models.Entity;
+﻿using Delivery_Models.Models.Entity;
 using Microsoft.EntityFrameworkCore;
 
 namespace Delivery_API.Data

@@ -1,7 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 
-namespace Delivery_API.Models.Entity
+namespace Delivery_Models.Models.Entity
 {
     public class OrderBasket 
     {

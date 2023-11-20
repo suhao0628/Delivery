@@ -1,11 +1,11 @@
 ﻿using AutoMapper;
 using Delivery_API.Data;
 using Delivery_API.Exceptions;
-using Delivery_API.Models;
-using Delivery_API.Models.Dto;
-using Delivery_API.Models.Entity;
-using Delivery_API.Models.Enum;
 using Delivery_API.Services.IServices;
+using Delivery_Models.Models;
+using Delivery_Models.Models.Dto;
+using Delivery_Models.Models.Entity;
+using Delivery_Models.Models.Enum;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;

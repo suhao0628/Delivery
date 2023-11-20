@@ -1,7 +1,7 @@
-﻿using Delivery_API.Models.Enum;
+﻿using Delivery_Models.Models.Enum;
 using System.ComponentModel.DataAnnotations;
 
-namespace Delivery_API.Models.Dto
+namespace Delivery_Models.Models.Dto
 {
     public class DishDto
     {

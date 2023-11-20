@@ -1,4 +1,4 @@
-﻿namespace Delivery_API.Models.Dto
+﻿namespace Delivery_Models.Models.Dto
 {
     public class DishPagedListDto
     {

@@ -1,4 +1,4 @@
-﻿namespace Delivery_API.Models
+﻿namespace Delivery_Models.Models
 {
     public class TokenResponse
     {
