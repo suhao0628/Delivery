@@ -1,0 +1,25 @@
+﻿@using Delivery_Models.Models.Entity;
+@using System.Web
+<ul class="navbar-nav">
+    @if (User.Identity.IsAuthenticated)
+    {
+        
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Profile">Welcome! @User.Identity.Name</a>
+        </li>
+        <li class="nav-item">
+            <form class="form-inline" asp-area="" asp-controller="User" asp-action="Logout" asp-route-returnUrl="@Url.Action("Index", "Home")">
+                <button id="logout" type="submit" class="nav-link btn btn-link border-0">Logout</button>
+            </form>
+        </li>
+    }
+    else
+    {
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Login">Login</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link text-dark" asp-area="" asp-controller="User" asp-action="Register">Register</a>
+        </li>
+    }
+</ul>

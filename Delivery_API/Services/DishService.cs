@@ -18,7 +18,7 @@ namespace Delivery_API.Services
     {
         private readonly AppDbContext _context;
         private readonly IMapper _mapper;
-        private const int PageSize = 5;
+        private const int PageSize = 8;
 
         public DishService(AppDbContext context, IMapper mapper)
         {

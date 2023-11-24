@@ -1,0 +1,150 @@
+﻿@using System.Text.Json;
+
+@model Delivery_Models.ViewModels.DishFilterVM
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-body p-2">
+        <div class="row pt-2">
+            <div class="col-md-12">
+                <div class="card">
+                    <div class="card-body shadow">
+                        
+                        <form method="post" class="filterForm">
+                            <div class="row align-items-center">
+                                <div class="col-md-3 mb-1">
+                                    <select name="category" id="c" class="selectpicker form-control" data-live-search="true" multiple>
+                                        <option value="Wok" class="btn btn-outline-primary bg-gradient">Wok</option>
+                                        <option value="Pizza" class="btn btn-outline-primary bg-gradient">Pizza</option>
+                                        <option value="Soup" class="btn btn-outline-primary bg-gradient">Soup</option>
+                                        <option value="Dessert" class="btn btn-outline-primary bg-gradient">Dessert</option>
+                                        <option value="Drink" class="btn btn-outline-primary bg-gradient">Drink</option>
+                                    </select>
+                                </div>
+
+                                <div class="col-md-3 mb-1">
+                                    <select name="sorting" id="s" class="selectpicker form-control">
+                                        <option value="NameAsc" class="btn btn-outline-primary bg-gradient">Name: A to Z</option>
+                                        <option value="NameDesc" class="btn btn-outline-primary bg-gradient">Name: Z to A</option>
+                                        <option value="PriceAsc" class="btn btn-outline-primary bg-gradient">Price: Low to High</option>
+                                        <option value="PriceDesc" class="btn btn-outline-primary bg-gradient">Price: High to Low</option>
+                                        <option value="RatingAsc" class="btn btn-outline-primary bg-gradient">Rating: Low to High</option>
+                                        <option value="RatingDesc" class="btn btn-outline-primary bg-gradient">Rating: High to Low</option>
+                                                </select>
+
+                                                
+                                </div>
+                                <div class="col-md-3 mb-1">
+                                    <div name="vegetarian" class="form-check form-switch">
+                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        
+                                        <label class="form-check-label" for="flexSwitchCheckDefault" id="veganLabel"><b>Show Vegan Dishes</b></label>
+                                        
+                                    </div>
+                                </div>
+                               
+                                <div class="col-md-3 mb-1 text-md-end">
+                                    <button type="submit" class="btn btn-primary float-right">Apply Filters</button>
+                                </div>
+                            </div>
+                        </form>
+                        
+                    </div>
+                </div>
+
+                <div class="dishesContainer row row-cols-1 row-cols-md-4 g-4 pt-3">
+                    @foreach (var item in Model.dishPagedListDto.Dishes)
+                    {
+                        <div class="col">
+                            <div class="card custom-card border-0 p-3 shadow border-top rounded">
+
+                                @if (@item.Image != null)
+                                {
+                                    <img src="@item.Image" class="card-img-top rounded" />
+                                }
+                                else
+                                {
+                                    <img src="https://placehold.co/500x600/png" class="card-img-top rounded" />
+                                }
+
+                                <div class="card-body pb-0">
+                                    <div class="pl-1">
+                                        <p class="card-title h5 text-dark opacity-75 text-uppercase text-center">@item.Name</p>
+                                        <p class="card-title text-warning text-center"><b>Category - @item.Category</b></p>
+                                    </div>
+
+                                    <div class="pl-1">
+                                        <p class="text-dark text-opacity-75 text-center">
+                                            As low as:
+                                            <span>
+                                                Price - @item.Price
+                                            </span>
+                                        </p>
+                                    </div>
+                                </div>
+                                <div>
+                                    <a asp-action="Details"
+                                       asp-route-Id="@item.Id"
+                                       class="btn btn-primary bg-gradient border-0 form-control">
+                                        Details
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    }
+
+                </div>
+                
+                <div aria-label="Page navigation example" class="pt-4">
+                    <ul class="pagination justify-content-end">
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+
+                        @for (int i = 1; i < Model.dishPagedListDto.Pagination.Count + 1; i++)
+                        {
+                            <li class="page-item  @(i == Model.dishPagedListDto.Pagination.Current ? "active" : "")">
+                                <a name="page" class="page-link @(i == Model.dishPagedListDto.Pagination.Current ? "active" : "")" href="@Url.Action("Index", new { id = i,category = @Model.categories, vegetarian =@Model.vegetarian, sorting = @Model.sorting })">@i</a>
+                            </li>
+                        }
+                        <li class="page-item">
+                            <a class="page-link" href="#" aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+                
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <partial name="_ValidationScriptsPartial" />
+    
+    <style>
+        .custom-card {
+            height: 100%;
+        }
+    </style>
+    <script>
+        $(document).ready(function () {
+            $('.selectpicker').selectpicker();
+        });
+
+        const switchElement = document.getElementById('flexSwitchCheckDefault');
+        const labelElement = document.getElementById('veganLabel');
+
+        switchElement.addEventListener('change', function () {
+            if (this.checked) {
+                switchElement.classList.add('bg-secondary')
+                labelElement.classList.add('text-warning');
+            } else {
+                switchElement.classList.remove('bg-secondary')
+                labelElement.classList.remove('text-warning');
+            }
+        });
+    </script>
+}
