@@ -95,21 +95,16 @@ namespace Delivery_Web.Controllers
 
             HttpResponseMessage response = await client.PostAsync($"https://localhost:7279/api/order/{orderId}/status", httpContent);
 
-            switch (response.StatusCode)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                case (HttpStatusCode)500:
-                    {
-                        return NotFound();
-                    }
-                case (HttpStatusCode)200:
-                    {
-                        return RedirectToAction("Index", "Order");
-                    }
-                default:
-                    {
-                        return NotFound();
-                    }
+                TempData["success"] = "Delivery Confirmed";
+                return RedirectToAction("Index", "Basket");
             }
+            else
+            {
+                TempData["error"] = "Error Occurs...";
+            }
+            return View(null);
 
         }
         #endregion

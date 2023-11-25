@@ -44,21 +44,17 @@ namespace Delivery_Web.Controllers
 
                 HttpResponseMessage response = await client.DeleteAsync($"https://localhost:7279/api/basket/dish/{dishId}?increase={increase}");
 
-                switch (response.StatusCode)
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    case (HttpStatusCode)500:
-                        {
-                            return NotFound();
-                        }
-                    case (HttpStatusCode)200:
-                        {
-                            return RedirectToAction("Index", "Basket");
-                        }
-                    default:
-                        {
-                            return NotFound();
-                        }
+
+                    TempData["success"] = "Delete Successfully";
+                    return RedirectToAction("Index", "Basket");
                 }
+                else
+                {
+                    TempData["error"] = "Error Occurs...";
+                }
+                return View(null);
             }
         }
         #endregion

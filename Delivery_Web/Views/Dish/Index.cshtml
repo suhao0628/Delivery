@@ -204,30 +204,25 @@
             }
         }
 
-        // 在页面加载时调用加载函数
         window.onload = function () {
             loadFiltersFromLocalStorage();
         };
 
-        // 当表单提交时保存过滤条件到本地存储
+        
         document.querySelector('.filterForm').addEventListener('submit', function (event) {
-            event.preventDefault(); // 防止表单默认提交行为
+            event.preventDefault(); 
 
-            // 获取选择的过滤条件
             const selectedCategory = [...document.getElementById('c').options]
                 .filter(option => option.selected)
                 .map(option => option.value);
             const selectedSorting = document.getElementById('s').value;
             const showVegan = document.getElementById('flexSwitchCheckDefault').checked;
 
-
-
-            // 将所选的过滤条件保存到本地存储
             localStorage.setItem('category', selectedCategory);
             localStorage.setItem('sorting', selectedSorting);
             localStorage.setItem('vegetarian', showVegan);
 
-            // 提交表单
+
             this.submit();
         });
     </script>

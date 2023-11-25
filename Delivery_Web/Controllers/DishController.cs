@@ -33,7 +33,7 @@ namespace Delivery_Web.Controllers
             //filterVM.page = page;
             filterVM.vegetarian = vegetarian;
 
-            HttpResponseMessage response = await client.GetAsync($"https://localhost:7279/api/ish?{categories}&&sorting={sorting}&&vegetarian={vegetarian}&&page={id}");
+            HttpResponseMessage response = await client.GetAsync($"https://localhost:7279/api/dish?{categories}&&sorting={sorting}&&vegetarian={vegetarian}&&page={id}");
             switch (response.StatusCode)
             {
                 case (HttpStatusCode)500:
@@ -145,23 +145,17 @@ namespace Delivery_Web.Controllers
 
 
             HttpResponseMessage response = await client.PostAsync($"https://localhost:7279/api/basket/dish/{dishId}", httpContent);
-
-            switch (response.StatusCode)
+            if (response.StatusCode == HttpStatusCode.OK)
             {
-                case (HttpStatusCode)500:
-                    {
-                        return NotFound();
-                    }
-                case (HttpStatusCode)200:
-                    {
-                        return RedirectToAction("Index", "Basket");
-                    }
-                default:
-                    {
-                        return NotFound();
-                    }
-            }
 
+                TempData["success"] = "One Dish is added to Cart Successfully";
+                return RedirectToAction("Index", "Basket");
+            }
+            else
+            {
+                TempData["error"] = "Error Occurs...";
+            }
+            return View(null);
         }
         #endregion
     }

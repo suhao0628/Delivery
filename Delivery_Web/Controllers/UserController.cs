@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 //using System.Web.Mvc;
 using System.Net.Http.Headers;
 using Delivery_Models.Models.Dto;
+using System.Net;
 
 namespace Delivery_Web.Controllers
 {
@@ -160,6 +161,8 @@ namespace Delivery_Web.Controllers
                             return NotFound();
                         }
                 }
+
+
             }
         }
 
@@ -190,24 +193,34 @@ namespace Delivery_Web.Controllers
 
                 HttpResponseMessage response = await client.PutAsync("https://localhost:7279/api/account/profile", httpContent);
 
-                switch (response.StatusCode)
+                //switch (response.StatusCode)
+                //{
+                //    case (System.Net.HttpStatusCode)500:
+                //        {
+                //            responseBody = await response.Content.ReadAsStringAsync();
+                //            statusMessage = JsonConvert.DeserializeObject<Response>(responseBody);
+                //            break;
+                //        }
+                //    case (System.Net.HttpStatusCode)200:
+                //        {
+                //            break;
+                //        }
+                //    default:
+                //        {
+                //            break;
+                //        }
+                //}
+                if (response.StatusCode == HttpStatusCode.OK)
                 {
-                    case (System.Net.HttpStatusCode)500:
-                        {
-                            responseBody = await response.Content.ReadAsStringAsync();
-                            statusMessage = JsonConvert.DeserializeObject<Response>(responseBody);
-                            break;
-                        }
-                    case (System.Net.HttpStatusCode)200:
-                        {
-                            break;
-                        }
-                    default:
-                        {
-                            break;
-                        }
+                    TempData["success"] = "Profile Updated Successfully";
+                    
+                    return View();
                 }
-
+                else
+                {
+                    TempData["error"] = "Error Occurs...";
+                }
+                
                 UserDto userProfile = new UserDto();
 
                 userProfile.Id = userDto.Id;
