@@ -1,0 +1,128 @@
+﻿@using System.Globalization;
+@model GenerateOrderVM
+<form method="post">
+    <br />
+    <div class="container">
+        <div class="card shadow border-0">
+            <div class="card-header bg-secondary bg-gradient text-light ml-0 py-4">
+                <div class="row px-4">
+                    <div class="col-6">
+                        <h5 class="pt-2 text-white">
+                            Order Summary
+                        </h5>
+                    </div>
+                    <div class="col-6 text-end">
+                        <a asp-action="Index" class="btn btn-outline-danger btn-sm">Back to Cart</a>
+                    </div>
+                </div>
+            </div>
+            <div class="card-body" style="max-height:70vh; overflow-y: auto;">
+                <div class="container rounded p-2">
+                    <div class="row">
+                        <div class="col-12 col-lg-6 pb-4">
+                            <div class="row">
+                                <h4 class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-info">User Data:</span>
+                                </h4>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-2 my-1">
+                                    <label>Email</label>
+                                </div>
+                                <div class="col-9">
+                                    <input asp-for="UserDto.Email" class="form-control" disabled />
+                                    <span asp-validation-for="UserDto.Email" class="text-danger"></span>
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-2 my-1">
+                                    <label>Phone</label>
+                                </div>
+                                <div class="col-9">
+                                    <input asp-for="UserDto.PhoneNumber" class="form-control" disabled />
+                                    <span asp-validation-for="UserDto.PhoneNumber" class="text-danger"></span>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="col-12 col-lg-6 pb-4">
+                            <div class="row">
+                                <h4 class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="text-info">Delivery Details:</span>
+                                </h4>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>Delivery Time</label>
+                                </div>
+                                <div class="col-9">
+                                    <input name="deliveryTime" type="datetime-local" class="form-control" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")"
+                                           min="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")" required />
+                                </div>
+                            </div>
+                            <div class="row my-1">
+                                <div class="col-3">
+                                    <label>Address</label>
+                                </div>
+                                <div class="col-9">
+                                    <input name="address" class="form-control" required />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <h4 class="d-flex justify-content-between align-items-center mb-3">
+                        <span class="text-info">Order Summary:</span>
+                    </h4>
+                    <div class="col-12" style="max-height:40vh; overflow-y: auto; overflow-x: hidden;">
+                        <ul class="list-group mb-3">
+                            @foreach (var item in Model.DishBasketDtos)
+                            {
+                                <div class="row border-bottom pb-3">
+                                    <div class="d-none d-lg-block col-lg-1 text-center py-2">
+                                        @if (item.Image != null)
+                                        {
+                                            <img src="@item.Image" class="card-img-top rounded w-100" />
+                                        }
+                                        else
+                                        {
+                                            <img src="https://placehold.co/500x600/png" class="card-img-top rounded w-100" />
+                                        }
+                                    </div>
+                                    <div class="col-12 col-lg-6 pt-md-3">
+                                        <h5 class="text-uppercase text-secondary"><strong>@item.Name</strong></h5>
+                                        <p><small>Price: @item.Price.ToString("c", new CultureInfo("ru-RU"))</small></p>
+                                    </div>
+                                    <div class="col-12  col-lg-5 text-center row">
+                                        <div class="col-3 text-md-right pt-2 pt-md-4">
+                                            <h6 class="fw-semibold">
+                                                @item.Price.ToString("c")
+                                                <span class="text-muted">&nbsp;x&nbsp;</span>@item.Amount
+                                            </h6>
+                                        </div>
+
+                                    </div>
+
+                                </div>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card-footer">
+                <div class="row">
+                    <div class="col-12 col-md-8 pt-2">
+                        <p style="color:maroon; font-size:14px;">
+                            Estimate Arrival Date:
+                            @DateTime.Now.AddMinutes(30).ToString("HH:mm") - @DateTime.Now.AddMinutes(60).ToString("HH:mm")
+                        </p>
+                    </div>
+                    <div class="col-12 col-md-4">
+                        <button type="submit" value="Place Order" class="btn btn-primary form-control">Place Order</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</form>

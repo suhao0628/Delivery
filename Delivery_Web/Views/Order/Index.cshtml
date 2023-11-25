@@ -1,0 +1,72 @@
+﻿@using System.Globalization;
+@model IEnumerable<OrderDto>
+
+
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-secondary bg-gradient text-light ml-0 py-4">
+        <div class="row px-4">
+            <div class="col-6">
+                <h5 class="pt-2 text-white">
+                    Orders
+                </h5>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="card-body my-4">
+
+        @if (Model != null && Model.Any())
+            {
+            <div class="row justify-content-center mb-3 pb-3">
+                @foreach (var item in Model)
+                {
+                    <div class="row border-bottom pb-3">
+
+                        <div class="col-12 col-lg-6 pt-md-3">
+                            <a asp-action="Details" asp-route-Id="@item.Id">
+                                <u><strong>Orde Number &nbsp;  #@item.Id</strong></u>
+                            </a>
+                            <p class="text-secondary">Order Status - @item.Status</p>
+                            <p><small>Delivery Time: @item.DeliveryTime</small></p>
+                        </div>
+                        <div class="col-12  col-lg-6 text-center row">
+                            <div class="col-6 text-md-right pt-2 pt-md-4">
+                                <strong class="fw-semibold">
+                                    Total Price：@item.Price.ToString("c", new CultureInfo("ru-RU"))
+                                </strong>
+                            </div>
+                            <div class="col-12 col-lg-6 pt-2 pt-md-4">
+                                <div class="w-75 btn-group" role="group">
+                                    @if (item.Status.ToString() == "InProcess")
+                                    {
+                                        <a asp-action="ConfirmDelivery" asp-route-orderId="@item.Id" class="btn btn-outline-success bg-gradient py-2">
+                                            Confirm Delivery
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <label class="btn btn-success py-2">
+                                            Deliveried
+                                        </label>
+                                    }
+
+                                </div>
+                            </div>
+
+                        </div>
+
+                    </div>
+                }
+
+
+        </div>
+        }
+        else
+        {
+            <h5>
+                Please place order in cart <i class="bi bi-emoji-smile"></i>
+            </h5>
+        }
+    </div>
+</div>

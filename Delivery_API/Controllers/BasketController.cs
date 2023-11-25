@@ -88,7 +88,11 @@ namespace Delivery_API.Controllers
             {
                 var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
                 await _basketService.DeleteBasket(dishId, userId, increase);
-                return Ok("Dish removed from basket successfully");
+                if (_basketService.GetBasket(userId) == null)
+                {
+                    return Ok("Dish removed from basket successfully");
+                }
+                else { return Ok("Dish reduced from basket successfully"); }
             }
             catch
             {

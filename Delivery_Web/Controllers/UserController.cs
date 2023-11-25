@@ -5,9 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Security.Claims;
 using Delivery_Models.Models;
 using Newtonsoft.Json;
-using Delivery_Models.Models.Enum;
 //using System.Web.Mvc;
-using Delivery_Models.ViewModels;
 using System.Net.Http.Headers;
 using Delivery_Models.Models.Dto;
 
@@ -16,11 +14,10 @@ namespace Delivery_Web.Controllers
     [AllowAnonymous]
     public class UserController : Controller
     {
-        private static readonly HttpClient client = new();
+        #region Login
         [HttpGet]
         public IActionResult Login()
         {
-            ViewBag.Info = "注册成功后，直接进入个人中心";
             return View();
         }
         [HttpPost]
@@ -33,7 +30,7 @@ namespace Delivery_Web.Controllers
             HttpContent httpContent = new StringContent(jsonString);
             httpContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-            try
+            using (var client = new HttpClient())
             {
                 HttpResponseMessage response = await client.PostAsync("https://localhost:7279/api/account/login", httpContent);
 
@@ -43,8 +40,7 @@ namespace Delivery_Web.Controllers
                         {
                             responseBody = await response.Content.ReadAsStringAsync();
                             statusMessage = JsonConvert.DeserializeObject<Response>(responseBody);
-                            ViewBag.Info = statusMessage.Message;
-                            break;
+                            return View(statusMessage);
                         }
                     case (System.Net.HttpStatusCode)200:
                         {
@@ -57,32 +53,30 @@ namespace Delivery_Web.Controllers
                             var userPrincipal = new ClaimsPrincipal(new ClaimsIdentity(claims, "Customer"));
                             await HttpContext.SignInAsync(
                                 CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal, new AuthenticationProperties
-                            {
-                                ExpiresUtc = DateTime.UtcNow.AddMinutes(20),
-                                IsPersistent = false,  //浏览器关闭后，是否保持登录状态。
-                                AllowRefresh = true
-                            });
+                                {
+                                    ExpiresUtc = DateTime.UtcNow.AddMinutes(20),
+                                    IsPersistent = false,
+                                    AllowRefresh = true
+                                });
                             return RedirectToAction("Index", "Dish");
                         }
                     default:
                         {
-                            ViewBag.Info = "系统异常";
                             break;
                         }
                 }
+
+                return View();
             }
-            catch
-            {
-                ViewBag.Info = "系统异常";
-            }
-            return View();
         }
 
+        #endregion
 
+        #region Register
         [HttpGet]
         public IActionResult Register()
         {
-            ViewBag.Info = "注册成功后，直接进入个人中心";
+
             return View();
         }
 
@@ -96,7 +90,7 @@ namespace Delivery_Web.Controllers
             HttpContent httpContent = new StringContent(jsonString);
             httpContent.Headers.ContentType = new System.Net.Http.Headers.MediaTypeHeaderValue("application/json");
 
-            try
+            using (var client = new HttpClient())
             {
                 HttpResponseMessage response = await client.PostAsync("https://localhost:7279/api/account/register", httpContent);
 
@@ -106,8 +100,7 @@ namespace Delivery_Web.Controllers
                         {
                             responseBody = await response.Content.ReadAsStringAsync();
                             statusMessage = JsonConvert.DeserializeObject<Response>(responseBody);
-                            ViewBag.Info = statusMessage.Message;
-                            break;
+                            return View(statusMessage);
                         }
                     case (System.Net.HttpStatusCode)200:
                         {
@@ -120,39 +113,34 @@ namespace Delivery_Web.Controllers
                             await HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, userPrincipal, new AuthenticationProperties
                             {
                                 ExpiresUtc = DateTime.UtcNow.AddMinutes(20),
-                                IsPersistent = false,  //浏览器关闭后，是否保持登录状态。
+                                IsPersistent = false,
                                 AllowRefresh = true
                             });
                             return RedirectToAction("Index", "Dish");
                         }
                     default:
                         {
-                            ViewBag.Info = "系统异常";
                             break;
                         }
                 }
+
+                return View();
             }
-            catch
-            {
-                ViewBag.Info = "系统异常";
-            }
-            
-            return View();
         }
+        #endregion
 
-
+        #region Profile
         [HttpGet]
         public async Task<IActionResult> Profile()
         {
-            ViewBag.Info = "欢迎";
             string responseBody = "";
 
-            UserDto showUserProfileModel = new UserDto();
+            UserDto userProfile = new UserDto();
 
-            try
+            using (var client = new HttpClient())
             {
-                TokenResponse tokenJsonViewModel = JsonConvert.DeserializeObject<TokenResponse>(HttpContext.User.Claims.Where(w => w.Type == "token").First().Value);
-                var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", tokenJsonViewModel.Token);
+                TokenResponse tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(HttpContext.User.Claims.Where(w => w.Type == "token").First().Value);
+                var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", tokenResponse.Token);
                 client.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
                 HttpResponseMessage response = await client.GetAsync("https://localhost:7279/api/account/profile");
                 switch (response.StatusCode)
@@ -164,18 +152,14 @@ namespace Delivery_Web.Controllers
                     case (System.Net.HttpStatusCode)200:
                         {
                             responseBody = await response.Content.ReadAsStringAsync();
-                            showUserProfileModel = JsonConvert.DeserializeObject<UserDto>(responseBody);
-                            return View(showUserProfileModel);
+                            userProfile = JsonConvert.DeserializeObject<UserDto>(responseBody);
+                            return View(userProfile);
                         }
                     default:
                         {
                             return NotFound();
                         }
                 }
-            }
-            catch
-            {
-                return NotFound();
             }
         }
 
@@ -193,17 +177,17 @@ namespace Delivery_Web.Controllers
             userEditModel.BirthDate = userDto.BirthDate;
             userEditModel.PhoneNumber = userDto.PhoneNumber;
             userEditModel.Gender = userDto.Gender;
-
-            TokenResponse tokenJsonViewModel = JsonConvert.DeserializeObject<TokenResponse>(HttpContext.User.Claims.Where(w => w.Type == "token").First().Value);
-            var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", tokenJsonViewModel.Token);
-            client.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
-
-            var jsonString = JsonConvert.SerializeObject(userEditModel);
-            HttpContent httpContent = new StringContent(jsonString);
-            httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
-
-            try
+            using (var client = new HttpClient())
             {
+                TokenResponse tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(HttpContext.User.Claims.Where(w => w.Type == "token").First().Value);
+                var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", tokenResponse.Token);
+                client.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
+
+                var jsonString = JsonConvert.SerializeObject(userEditModel);
+                HttpContent httpContent = new StringContent(jsonString);
+                httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+
                 HttpResponseMessage response = await client.PutAsync("https://localhost:7279/api/account/profile", httpContent);
 
                 switch (response.StatusCode)
@@ -212,44 +196,38 @@ namespace Delivery_Web.Controllers
                         {
                             responseBody = await response.Content.ReadAsStringAsync();
                             statusMessage = JsonConvert.DeserializeObject<Response>(responseBody);
-                            ViewBag.Info = statusMessage.Message;
                             break;
                         }
                     case (System.Net.HttpStatusCode)200:
                         {
-                            ViewBag.Info = "修改成功";
                             break;
                         }
                     default:
                         {
-                            ViewBag.Info = "系统异常";
                             break;
                         }
                 }
-            }
-            catch
-            {
-                ViewBag.Info = "系统异常";
-            }
-            UserDto showUserProfileModel = new UserDto();
 
-            showUserProfileModel.Id = userDto.Id;
-            showUserProfileModel.FullName = userDto.FullName;
-            showUserProfileModel.Email = userDto.Email;
-            showUserProfileModel.Address = userDto.Address;
-            showUserProfileModel.BirthDate = userDto.BirthDate;
-            showUserProfileModel.PhoneNumber = userDto.PhoneNumber;
-            showUserProfileModel.Gender = userDto.Gender;
+                UserDto userProfile = new UserDto();
 
-            return View(showUserProfileModel);
+                userProfile.Id = userDto.Id;
+                userProfile.FullName = userDto.FullName;
+                userProfile.Email = userDto.Email;
+                userProfile.Address = userDto.Address;
+                userProfile.BirthDate = userDto.BirthDate;
+                userProfile.PhoneNumber = userDto.PhoneNumber;
+                userProfile.Gender = userDto.Gender;
+
+                return View(userProfile);
+            }
         }
 
         public async Task<IActionResult> Logout()
         {
-            try
+            using (var client = new HttpClient())
             {
-                TokenResponse tokenJsonViewModel = JsonConvert.DeserializeObject<TokenResponse>(HttpContext.User.Claims.Where(w => w.Type == "token").First().Value);
-                var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", tokenJsonViewModel.Token);
+                TokenResponse tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(HttpContext.User.Claims.Where(w => w.Type == "token").First().Value);
+                var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", tokenResponse.Token);
                 client.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
                 HttpResponseMessage response = await client.PostAsync("https://localhost:7279/api/account/logout", null);
                 switch (response.StatusCode)
@@ -269,10 +247,7 @@ namespace Delivery_Web.Controllers
                         }
                 }
             }
-            catch
-            {
-                return NotFound();
-            }
         }
+        #endregion
     }
 }

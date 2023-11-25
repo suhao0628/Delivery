@@ -81,7 +81,7 @@ namespace Delivery_API.Services
                 throw new NotFoundException("Dish is not in Basket");
             }
 
-            if (baskets.Amount == 1 || increase)
+            if (baskets.Amount == 1 || !increase)
             {
                 _context.Baskets.Remove(baskets);
                 await _context.SaveChangesAsync();

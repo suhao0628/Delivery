@@ -1,5 +1,5 @@
 ﻿@using System.Globalization;
-@model Delivery_Models.Models.Dto.DishDto
+@model DishDto
 
 <form asp-action="AddToBasket">
     <input hidden asp-for="@Model.Id" />
@@ -23,7 +23,6 @@
                 </div>
                 <div class="row">
                     <div class="col-12 text-center">
-                        @* col-lg-3 offset-lg-1 text-center mb-3 *@
 
                         @if (Model.Image != null)
                         {
@@ -35,8 +34,7 @@
                         }
                     </div>
                     <div class="col-12 text-center justify-content-center">
-                        @* col-lg-6 offset-lg-1 *@
-                        
+
                         <div class="row pl-2 my-3">
                             <p class="text-secondary lh-sm">@Html.Raw(Model.Description)</p>
                         </div>
@@ -48,20 +46,9 @@
                                 </span>
                             </h6>
                         </div>
-                        @* <div class="row justify-content-center">
-                            <div class="col-md-3">
-                                <div class="input-group mb-3">
-                                    <span class="input-group-text bg-primary text-white border-0 fw-semibold"
-                                        id="inputGroup-sizing-default text-center">
-                                        Count
-                                    </span>
-                                    <input asp-for="Count" type="number" value="1" class="form-control text-end"
-                                    aria-label="Sizing example input" aria-describedby="inputGroup-sizing-default" />
-                                </div>
-                            </div>
-                        </div> *@
                         <div class="row justify-content-center">
                             <div class="col-12 col-md-3 pb-1 ">
+                                <input name="dishId" type="hidden" value="@Model.Id" />
                                 <button type="submit"
                                         class="btn btn-primary bg-gradient  w-100 py-2 text-uppercase fw-semibold">
                                     Add to Basket

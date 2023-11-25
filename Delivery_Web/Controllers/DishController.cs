@@ -14,91 +14,66 @@ namespace Delivery_Web.Controllers
     {
         private static readonly HttpClient client = new HttpClient();
 
-        #region 菜品目录
-        /// <summary>
-        /// 菜品目录
-        /// </summary>
-        /// <returns></returns>
+        #region Dish Menu(home page)
         [HttpGet]
-        public async Task<IActionResult> Index(int id, DishCategory[] category, bool vegetarian, DishSorting sorting, int page = 1)
+        public async Task<IActionResult> Index(int id, DishCategory[] category, bool vegetarian, DishSorting sorting)//, int page = 1)
         {
-            ViewBag.Category = category.ToString();
-            ViewBag.Vegetarian = vegetarian;
-            ViewBag.Sorting = sorting.ToString();
             string categories = "";
             foreach (var items in category)
             {
-                 categories += string.Join("&", category.Select(c => $"category={c}"));//"categories =" + items.ToString() + "&&";
+                categories = string.Join("&", category.Select(c => $"category={c}"));//"categories =" + items.ToString() + "&&";
             }
-             
-            string responseBody = "";
 
-            DishPagedListDto dishListModel = new DishPagedListDto();
+
+
+            DishPagedListDto dishList = new DishPagedListDto();
             DishFilterVM filterVM = new DishFilterVM();
             filterVM.categories = category;
             filterVM.sorting = sorting;
-                filterVM.page = page;
-                filterVM.vegetarian = vegetarian;
-            try
+            //filterVM.page = page;
+            filterVM.vegetarian = vegetarian;
+
+            HttpResponseMessage response = await client.GetAsync($"https://localhost:7279/api/ish?{categories}&&sorting={sorting}&&vegetarian={vegetarian}&&page={id}");
+            switch (response.StatusCode)
             {
-                HttpResponseMessage response = await client.GetAsync($"https://localhost:7279/api/dish?{categories}&&sorting={sorting}&&vegetarian={vegetarian}&&page={id}");
-                switch (response.StatusCode)
-                {
-                    case (HttpStatusCode)500:
-                        {
-                            return NotFound();
-                        }
-                    case (HttpStatusCode)200:
-                        {
-                            responseBody = await response.Content.ReadAsStringAsync();
-                            dishListModel = JsonConvert.DeserializeObject<DishPagedListDto>(responseBody);
-                            filterVM.dishPagedListDto = dishListModel;
-                            return View(filterVM);
-                        }
-                    default:
-                        {
-                            return NotFound();
-                        }
-                }
+                case (HttpStatusCode)500:
+                    {
+                        return NotFound();
+                    }
+                case (HttpStatusCode)200:
+                    {
+                        string responseBody = await response.Content.ReadAsStringAsync();
+                        dishList = JsonConvert.DeserializeObject<DishPagedListDto>(responseBody);
+                        filterVM.dishPagedListDto = dishList;
+                        return View(filterVM);
+                    }
+                default:
+                    {
+                        return NotFound();
+                    }
             }
-            catch
-            {
-                return NotFound();
-            }
+
         }
 
-        /// <summary>
-        /// 菜品目录
-        /// </summary>
-        /// <param name="category"></param>
-        /// <param name="vegetarian"></param>
-        /// <param name="sorting"></param>
-        /// <param name="page"></param>
-        /// <returns></returns>
         [HttpPost]
-        public async Task<IActionResult> Index(DishCategory[] category, bool vegetarian, DishSorting sorting, int page = 1)
+        public async Task<IActionResult> Index(DishCategory[] category, DishSorting sorting, bool vegetarian, int page = 1)
         {
-            ViewBag.Category = category.ToString();
-            ViewBag.Vegetarian = vegetarian;
-            ViewBag.Sorting = sorting.ToString();
             string categories = "";
             foreach (var items in category)
             {
-                categories += string.Join("&", category.Select(c => $"category={c}"));
+                categories = string.Join("&", category.Select(c => $"categories={c}"));
             }
 
-            string responseBody = "";
-
-            DishPagedListDto dishListModel = new DishPagedListDto();
+            DishPagedListDto dishList = new DishPagedListDto();
             DishFilterVM filterVM = new DishFilterVM();
             filterVM.categories = category;
             filterVM.sorting = sorting;
             filterVM.page = page;
             filterVM.vegetarian = vegetarian;
-            try
+            using (var client = new HttpClient())
             {
-                TokenResponse tokenJsonViewModel = JsonConvert.DeserializeObject<TokenResponse>(HttpContext.User.Claims.Where(w => w.Type == "token").First().Value);
-                var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", tokenJsonViewModel.Token);
+                TokenResponse tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(HttpContext.User.Claims.Where(w => w.Type == "token").First().Value);
+                var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", tokenResponse.Token);
                 client.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
                 HttpResponseMessage response = await client.GetAsync($"https://localhost:7279/api/dish?{categories}&sorting={sorting}&vegetarian={vegetarian}");
                 switch (response.StatusCode)
@@ -109,11 +84,10 @@ namespace Delivery_Web.Controllers
                         }
                     case (HttpStatusCode)200:
                         {
-                            responseBody = await response.Content.ReadAsStringAsync();
-                            dishListModel = JsonConvert.DeserializeObject<DishPagedListDto>(responseBody);
-                            filterVM.dishPagedListDto = dishListModel;
+                            string responseBody = await response.Content.ReadAsStringAsync();
+                            dishList = JsonConvert.DeserializeObject<DishPagedListDto>(responseBody);
+                            filterVM.dishPagedListDto = dishList;
                             return View(filterVM);
-                            
                         }
                     default:
                         {
@@ -121,54 +95,74 @@ namespace Delivery_Web.Controllers
                         }
                 }
             }
-            catch
-            {
-                return NotFound();
-            }
         }
         #endregion
 
-        #region 获取菜品详情
-        /// <summary>
-        /// 获取菜品详情
-        /// </summary>
-        /// <param name="id"></param>
-        /// <returns></returns>
+        #region Dish Details
         [HttpGet]
         public async Task<IActionResult> Details(string id)
         {
             string responseBody = "";
             DishDto dishViewModel = new();
 
-            try
+            //TokenResponse tokenJsonViewModel = JsonConvert.DeserializeObject<TokenResponse>(HttpContext.User.Claims.Where(w => w.Type == "token").First().Value);
+            //var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", tokenJsonViewModel.Token);
+            //client.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
+            HttpResponseMessage response = await client.GetAsync($"https://localhost:7279/api/dish/{id}");
+            switch (response.StatusCode)
             {
-                //TokenResponse tokenJsonViewModel = JsonConvert.DeserializeObject<TokenResponse>(HttpContext.User.Claims.Where(w => w.Type == "token").First().Value);
-                //var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", tokenJsonViewModel.Token);
-                //client.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
-                HttpResponseMessage response = await client.GetAsync($"https://localhost:7279/api/dish/{id}");
-                switch (response.StatusCode)
-                {
-                    case (HttpStatusCode)500:
-                        {
-                            return NotFound();
-                        }
-                    case (HttpStatusCode)200:
-                        {
-                            responseBody = await response.Content.ReadAsStringAsync();
-                            dishViewModel = JsonConvert.DeserializeObject<DishDto>(responseBody);
-                            return View(dishViewModel);                        }
-                    default:
-                        {
-                            return NotFound();
-                        }
-                }
+                case (HttpStatusCode)500:
+                    {
+                        return NotFound();
+                    }
+                case (HttpStatusCode)200:
+                    {
+                        responseBody = await response.Content.ReadAsStringAsync();
+                        dishViewModel = JsonConvert.DeserializeObject<DishDto>(responseBody);
+                        return View(dishViewModel);
+                    }
+                default:
+                    {
+                        return NotFound();
+                    }
             }
-            catch
-            {
-                return NotFound();
-            }
+
         }
         #endregion
 
+        #region Add Dish To Basket
+        public async Task<IActionResult> AddToBasket(string dishId)
+        {
+            Response statusMessage = new Response();
+
+            TokenResponse tokenJsonViewModel = JsonConvert.DeserializeObject<TokenResponse>(HttpContext.User.Claims.Where(w => w.Type == "token").First().Value);
+            var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", tokenJsonViewModel.Token);
+            client.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
+
+            var jsonString = JsonConvert.SerializeObject(new { id = dishId });
+            HttpContent httpContent = new StringContent(jsonString);
+            httpContent.Headers.ContentType = new MediaTypeHeaderValue("application/json");
+
+
+            HttpResponseMessage response = await client.PostAsync($"https://localhost:7279/api/basket/dish/{dishId}", httpContent);
+
+            switch (response.StatusCode)
+            {
+                case (HttpStatusCode)500:
+                    {
+                        return NotFound();
+                    }
+                case (HttpStatusCode)200:
+                    {
+                        return RedirectToAction("Index", "Basket");
+                    }
+                default:
+                    {
+                        return NotFound();
+                    }
+            }
+
+        }
+        #endregion
     }
 }

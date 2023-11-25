@@ -1,6 +1,6 @@
 ﻿@using System.Text.Json;
 
-@model Delivery_Models.ViewModels.DishFilterVM
+@model DishFilterVM
 
 <div class="card shadow border-0 mt-4">
     <div class="card-body p-2">
@@ -34,8 +34,9 @@
                                                 
                                 </div>
                                 <div class="col-md-3 mb-1">
-                                    <div name="vegetarian" class="form-check form-switch">
-                                        <input class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                    
+                                    <div class="form-check form-switch">
+                                        <input name="vegetarian" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
                                         
                                         <label class="form-check-label" for="flexSwitchCheckDefault" id="veganLabel"><b>Show Vegan Dishes</b></label>
                                         
@@ -50,72 +51,81 @@
                         
                     </div>
                 </div>
+                    <div style="max-height:70vh; overflow-y: auto;overflow-x: hidden;">
+                        <div class="dishesContainer row row-cols-1 row-cols-md-4 g-4 pt-3">
+                            @foreach (var item in Model.dishPagedListDto.Dishes)
+                            {
+                                <div class="col">
+                                    <div class="card custom-card border-0 p-3 shadow border-top rounded">
 
-                <div class="dishesContainer row row-cols-1 row-cols-md-4 g-4 pt-3">
-                    @foreach (var item in Model.dishPagedListDto.Dishes)
-                    {
-                        <div class="col">
-                            <div class="card custom-card border-0 p-3 shadow border-top rounded">
+                                        @if (@item.Image != null)
+                                        {
+                                            <img src="@item.Image" class="card-img-top rounded" />
+                                        }
+                                        else
+                                        {
+                                            <img src="https://placehold.co/500x600/png" class="card-img-top rounded" />
+                                        }
 
-                                @if (@item.Image != null)
-                                {
-                                    <img src="@item.Image" class="card-img-top rounded" />
-                                }
-                                else
-                                {
-                                    <img src="https://placehold.co/500x600/png" class="card-img-top rounded" />
-                                }
-
-                                <div class="card-body pb-0">
-                                    <div class="pl-1">
-                                        <p class="card-title h5 text-dark opacity-75 text-uppercase text-center">@item.Name</p>
-                                        <p class="card-title text-warning text-center"><b>Category - @item.Category</b></p>
-                                    </div>
-
-                                    <div class="pl-1">
-                                        <p class="text-dark text-opacity-75 text-center">
-                                            As low as:
-                                            <span>
-                                                Price - @item.Price
-                                            </span>
-                                        </p>
+                                        <div class="card-body pb-0">
+                                            <div class="pl-1">
+                                                <p class="card-title h5 text-dark opacity-75 text-uppercase text-center">@item.Name</p>
+                                                <p class="card-title text-warning text-center"><b>Category - @item.Category</b></p>
+                                            </div>
+                                            <div class="pl-1">
+                                                <div class="rating text-center">
+                                                    @for (int i = 1; i <= 10; i++)
+                                                    {
+                                                        <i class="bi @(i > (int)Math.Round(item.Rating) ? "bi-star" : "bi-star-fill")"></i>
+                                                    }
+                                                </div>
+                                                <div class="rating text-center">
+                                                    @Math.Round(item.Rating)/10
+                                                </div>
+                                            </div>
+                                            <div class="pl-1">
+                                                <p class="text-dark text-opacity-75 text-center">
+                                                    As low as:
+                                                    <span>
+                                                        Price - @item.Price
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <div>
+                                            <a asp-action="Details"
+                                            asp-route-Id="@item.Id"
+                                            class="btn btn-primary bg-gradient border-0 form-control">
+                                                Details
+                                            </a>
+                                        </div>
                                     </div>
                                 </div>
-                                <div>
-                                    <a asp-action="Details"
-                                       asp-route-Id="@item.Id"
-                                       class="btn btn-primary bg-gradient border-0 form-control">
-                                        Details
-                                    </a>
-                                </div>
-                            </div>
+                            }
+
                         </div>
-                    }
-
-                </div>
-                
-                <div aria-label="Page navigation example" class="pt-4">
-                    <ul class="pagination justify-content-end">
-                        <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Previous">
-                                <span aria-hidden="true">&laquo;</span>
-                            </a>
-                        </li>
-
-                        @for (int i = 1; i < Model.dishPagedListDto.Pagination.Count + 1; i++)
-                        {
-                            <li class="page-item  @(i == Model.dishPagedListDto.Pagination.Current ? "active" : "")">
-                                <a name="page" class="page-link @(i == Model.dishPagedListDto.Pagination.Current ? "active" : "")" href="@Url.Action("Index", new { id = i,category = @Model.categories, vegetarian =@Model.vegetarian, sorting = @Model.sorting })">@i</a>
+                    </div>
+                    <div aria-label="Page navigation example" class="pt-4">
+                        <ul class="pagination justify-content-end">
+                            <li class="page-item">
+                                <a class="page-link" href="#" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
                             </li>
-                        }
-                        <li class="page-item">
-                            <a class="page-link" href="#" aria-label="Next">
-                                <span aria-hidden="true">&raquo;</span>
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-                
+
+                            @for (int i = 1; i < Model.dishPagedListDto.Pagination.Count + 1; i++)
+                            {
+                                <li class="page-item  @(i == Model.dishPagedListDto.Pagination.Current ? "active" : "")">
+                                    <a name="page" class="page-link @(i == Model.dishPagedListDto.Pagination.Current ? "active" : "")" href="@Url.Action("Index", new { id = i,category = @Model.categories, vegetarian =@Model.vegetarian, sorting = @Model.sorting,page=i })">@i</a>
+                                </li>
+                            }
+                            <li class="page-item">
+                                <a class="page-link" href="#" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
             </div>
         </div>
     </div>
@@ -123,7 +133,8 @@
 
 @section Scripts{
     <partial name="_ValidationScriptsPartial" />
-    
+    @* <script src="~/js/dish.js" /> *@
+
     <style>
         .custom-card {
             height: 100%;
@@ -146,5 +157,83 @@
                 labelElement.classList.remove('text-warning');
             }
         });
+
+
+
+
+        function loadFiltersFromLocalStorage() {
+            const selectedCategory = localStorage.getItem('category');
+            const selectedSorting = localStorage.getItem('sorting');
+            const showVegan = localStorage.getItem('vegetarian');
+
+            var categorySelect = document.getElementById('c');
+            var sortingSelect = document.getElementById('s');
+            var switchElement = document.getElementById('flexSwitchCheckDefault');
+
+            //if (selectedCategory) {
+            //    var categories = selectedCategory.split(',');
+            //    const categorySelect = document.getElementById('c');
+            //    for (var i = 0; i < categorySelect.options.length; i++) {
+            //        if (categories.includes(categorySelect.options[i].value)) {
+            //            categorySelect.options[i].selected = true;
+            //        }
+            //    }
+
+            // $(categorySelect).selectpicker('refresh');
+            //}
+            if (selectedCategory) {
+                //const categorySelect = document.getElementById('c');
+                //categorySelect.value = selectedCategory.split(',');
+                var categories = selectedCategory.split(',');
+                const categorySelect = document.getElementById('c');
+                for (var i = 0; i < categorySelect.options.length; i++) {
+                    if (categories.includes(categorySelect.options[i].value)) {
+                        categorySelect.options[i].selected = true;
+                    }
+                }
+
+                $(categorySelect).selectpicker('refresh');
+            }
+            if (selectedSorting) {
+                var sortingSelect = document.getElementById('s');
+                sortingSelect.value = selectedSorting;
+                $(sortingSelect).selectpicker('refresh');
+            }
+            if (showVegan) {
+                document.getElementById('flexSwitchCheckDefault').checked = showVegan === 'true';
+            }
+        }
+
+        // 在页面加载时调用加载函数
+        window.onload = function () {
+            loadFiltersFromLocalStorage();
+        };
+
+        // 当表单提交时保存过滤条件到本地存储
+        document.querySelector('.filterForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // 防止表单默认提交行为
+
+            // 获取选择的过滤条件
+            const selectedCategory = [...document.getElementById('c').options]
+                .filter(option => option.selected)
+                .map(option => option.value);
+            const selectedSorting = document.getElementById('s').value;
+            const showVegan = document.getElementById('flexSwitchCheckDefault').checked;
+
+
+
+            // 将所选的过滤条件保存到本地存储
+            localStorage.setItem('category', selectedCategory);
+            localStorage.setItem('sorting', selectedSorting);
+            localStorage.setItem('vegetarian', showVegan);
+
+            // 提交表单
+            this.submit();
+        });
     </script>
+
+
 }
+
+
+
