@@ -8,6 +8,10 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Delivery_Models.Models;
 using Delivery_Models.Models.Dto;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Delivery_API.Services;
+using Microsoft.Extensions.Primitives;
+using Microsoft.EntityFrameworkCore.Storage;
 
 namespace Delivery_API.Controllers
 {
@@ -16,14 +20,10 @@ namespace Delivery_API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
-        private readonly IDistributedCache _cache;
-        private readonly IOptions<JwtConfigurations> _jwtOptions;
 
-        public UserController(IUserService userService, IDistributedCache cache, IOptions<JwtConfigurations> jwtOptions)
+        public UserController(IUserService userService)
         {
             _userService = userService;
-            _cache = cache;
-            _jwtOptions = jwtOptions;
         }
 
         #region Register 
@@ -39,7 +39,14 @@ namespace Delivery_API.Controllers
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<TokenResponse>> Register([FromBody] UserRegisterModel register)
         {
-            return Ok(await _userService.Register(register));
+            if (!_userService.IsUniqueUser(register))
+            {
+                return BadRequest("Username " + register.Email + " is already taken.");
+            }
+            else
+            {
+                return Ok(await _userService.Register(register));
+            }
         }
         #endregion
 
@@ -56,14 +63,7 @@ namespace Delivery_API.Controllers
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<TokenResponse>> Login([FromBody] LoginCredentials login)
         {
-            try
-            {
-                return Ok(await _userService.Login(login));
-            }
-            catch
-            {
-                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
-            }
+            return Ok(await _userService.Login(login));
         }
         #endregion
 
@@ -75,31 +75,11 @@ namespace Delivery_API.Controllers
         [HttpPost("logout")]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
-        public IActionResult Logout()
+        public async Task<ActionResult> Logout()
         {
-            try
-            {
-                string token = Request.Headers[HeaderNames.Authorization].ToString().Replace("Bearer ", "");
-
-                var expirationMinutes = _jwtOptions.Value.Expires;
-                if (!token.IsNullOrEmpty())
-                {
-                    var options = new DistributedCacheEntryOptions
-                    {
-                        AbsoluteExpiration = DateTimeOffset.Now.AddMinutes(expirationMinutes)
-                    };
-                    _cache.SetString(token, "", options);
-
-                    return Ok(new { message = "Logged Out" });
-                }
-                return BadRequest();
-            }
-            catch
-            {
-                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
-            }
-
-
+            var token = Request.Headers["authorization"].Single()?.Split(" ").Last();
+            await _userService.Logout(token);
+            return Ok(new { message = "Logged Out" });
         }
         #endregion
 
@@ -114,15 +94,8 @@ namespace Delivery_API.Controllers
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetProfile()
         {
-            try
-            {
-                var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
-                return Ok(await _userService.GetProfile(userId));
-            }
-            catch
-            {
-                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
-            }
+            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+            return Ok(await _userService.GetProfile(userId));
         }
         #endregion
 
@@ -136,16 +109,9 @@ namespace Delivery_API.Controllers
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> EditProfile([FromBody] UserEditModel profile)
         {
-            try
-            {
-                var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
-                await _userService.EditProfile(profile, userId);
-                return Ok();
-            }
-            catch
-            {
-                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
-            }
+            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+            await _userService.EditProfile(profile, userId);
+            return Ok("Profile updated successfully");
         }
         #endregion
     }

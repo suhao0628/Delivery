@@ -4,12 +4,12 @@ using Delivery_Models.Models.Dto;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace Delivery_API.Controllers
 {
     [Route("api/basket")]
     [ApiController]
-    [Authorize]
     [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class BasketController : ControllerBase
     {
@@ -30,15 +30,8 @@ namespace Delivery_API.Controllers
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetBasket()
         {
-            try
-            {
-                var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
-                return Ok(await _basketService.GetBasket(userId));
-            }
-            catch
-            {
-                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
-            }
+            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+            return Ok(await _basketService.GetBasket(userId));
         }
         #endregion
 
@@ -55,17 +48,10 @@ namespace Delivery_API.Controllers
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> AddBasket(Guid dishId)
         {
-            try
-            {
-                var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+            await _basketService.AddBasket(dishId, userId);
+            return Ok("Dish added to basket successfully");
 
-                await _basketService.AddBasket(dishId, userId);
-                return Ok("Dish added to basket successfully");
-            }
-            catch
-            {
-                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
-            }
         }
         #endregion
 
@@ -84,20 +70,9 @@ namespace Delivery_API.Controllers
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> DeleteBasket(Guid dishId, bool increase)
         {
-            try
-            {
-                var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
-                await _basketService.DeleteBasket(dishId, userId, increase);
-                if (_basketService.GetBasket(userId) == null)
-                {
-                    return Ok("Dish removed from basket successfully");
-                }
-                else { return Ok("Dish reduced from basket successfully"); }
-            }
-            catch
-            {
-                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
-            }
+            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+            await _basketService.DeleteBasket(dishId, userId, increase);
+            return Ok("Dish deleted from basket successfully");
         }
         #endregion
 

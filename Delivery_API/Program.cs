@@ -10,7 +10,7 @@ using Microsoft.OpenApi.Models;
 using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
-
+using Delivery_API.Middleware;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -39,6 +39,9 @@ builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IDishService, DishService>();
 builder.Services.AddScoped<IBasketService, BasketService>();
 builder.Services.AddScoped<IOrderService, OrderService> ();
+
+builder.Services.AddScoped<ExceptionHandleMiddleware>();
+builder.Services.AddScoped<TokenMiddleware>();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 
@@ -59,13 +62,11 @@ builder.Services.AddSwaggerGen(options =>
 
     options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
     {
-        Description =
-            "JWT Authorization header using the Bearer scheme. \r\n\r\n " +
-            "Enter 'Bearer' [space] and then your token in the text input below.\r\n\r\n" +
-            "Example: \"Bearer 12345abcdef\"",
+        Description ="Please enter token",
         Name = "Authorization",
         In = ParameterLocation.Header,
-        Scheme = "Bearer"
+        Scheme = "Bearer",
+        Type = SecuritySchemeType.Http,
     });
     options.AddSecurityRequirement(new OpenApiSecurityRequirement()
     {
@@ -85,9 +86,6 @@ builder.Services.AddSwaggerGen(options =>
         }
     });
 });
-
-
-
 
 //Authentication
 builder.Services.Configure<JwtConfigurations>(
@@ -134,6 +132,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
+app.UseMiddleware<ExceptionHandleMiddleware>();
+app.UseMiddleware<TokenMiddleware>();
 
 app.UseHttpsRedirection();
 

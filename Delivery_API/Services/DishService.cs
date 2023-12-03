@@ -9,8 +9,6 @@ using Delivery_Models.Models.Enum;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.Win32;
-using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Delivery_API.Services
 {
@@ -111,9 +109,13 @@ namespace Delivery_API.Services
 
             if (dish == null)
             {
-                throw new NotFoundException("Dish not found");
+                throw new NotFoundException(new Response
+                {
+                    Status = "Error",
+                    Message = $"Dish with id = {id} don't in database"
+                });
             }
-            
+
             return _mapper.Map<DishDto>(dish);
         }
 
@@ -122,14 +124,28 @@ namespace Delivery_API.Services
             var dish = await _context.Dishes.FirstOrDefaultAsync(d => d.Id == dishId);
             if (dish == null)
             {
-                throw new NotFoundException("Dish not found");
+                throw new NotFoundException(new Response
+                {
+                    Status = "Error",
+                    Message = $"Dish with id = {dishId} don't in database"
+                });
             }
-            var carts = await _context.OrderBaskets.FirstOrDefaultAsync(x => x.DishId == dishId);
-            if (carts == null)
+            foreach (var order in _context.Orders)
             {
-                throw new NotFoundException("Dish not ordered");
+                if (order.UserId == userId && order.Status == OrderStatus.Delivered)
+                {
+                    foreach (var cart in _context.OrderBaskets)
+                    {
+                        if (cart.OrderId == order.Id && cart.DishId == dishId)
+                        {
+                            return true;
+                        }
+                    }
+                }
             }
-            return await _context.Orders.FirstOrDefaultAsync(x => x.UserId == userId && x.Id == carts.OrderId) != null;
+
+            return false;
+
         }
 
         public async Task SetRating(Guid dishId, int ratingScore, Guid userId)
@@ -137,7 +153,11 @@ namespace Delivery_API.Services
             var dish = await _context.Dishes.FirstOrDefaultAsync(d => d.Id == dishId);
             if (dish == null)
             {
-                throw new NotFoundException("Dish not found");
+                throw new NotFoundException(new Response
+                {
+                    Status = "Error",
+                    Message = $"Dish with id = {dishId} don't in database"
+                });
             }
             if (!await CheckRating(dishId, userId))
             {
@@ -163,14 +183,14 @@ namespace Delivery_API.Services
             }
             await _context.SaveChangesAsync();
 
-            double dishRating =  _context.Ratings
+            double dishRating = _context.Ratings
             .Where(rating => rating.DishId == dishId)
             .Select(rating => rating.RatingScore)
             .ToList()
             .Average();
 
             dish.Rating = dishRating;
-             _context.Dishes.Attach(dish);
+            _context.Dishes.Update(dish);
 
             await _context.SaveChangesAsync();
         }

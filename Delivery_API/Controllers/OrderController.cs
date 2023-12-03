@@ -1,4 +1,5 @@
-﻿using Delivery_API.Services.IServices;
+﻿using Delivery_API.Exceptions;
+using Delivery_API.Services.IServices;
 using Delivery_Models.Models;
 using Delivery_Models.Models.Dto;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -32,14 +33,7 @@ namespace Delivery_API.Controllers
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetOrderDetails(Guid id)
         {
-            try
-            {
-                return Ok(await _orderService.GetOrderDetails(id));
-            }
-            catch
-            {
-                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
-            }
+            return Ok(await _orderService.GetOrderDetails(id));
         }
         #endregion
 
@@ -54,15 +48,8 @@ namespace Delivery_API.Controllers
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetOrders()
         {
-            try
-            {
-                var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
-                return Ok(await _orderService.GetOrders(userId));
-            }
-            catch
-            {
-                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
-            }
+            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+            return Ok(await _orderService.GetOrders(userId));
         }
         #endregion
 
@@ -78,16 +65,9 @@ namespace Delivery_API.Controllers
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> CreateOrder([FromBody] OrderCreateDto orderCreateDto)
         {
-            try
-            {
-                var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
-                await _orderService.CreateOrder(orderCreateDto, userId);
-                return Ok("Order created successfully");
-            }
-            catch
-            {
-                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
-            }
+            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+            await _orderService.CreateOrder(orderCreateDto, userId);
+            return Ok("Order created successfully");
         }
         #endregion
 
@@ -104,16 +84,9 @@ namespace Delivery_API.Controllers
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> ConfirmDelivery(Guid id)
         {
-            try
-            {
-                var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
-                await _orderService.ConfirmDelivery(id, userId);
-                return Ok("Confirm Delivered");
-            }
-            catch
-            {
-                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
-            }
+            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+            await _orderService.ConfirmDelivery(id, userId);
+            return Ok("Confirm Delivered");
         }
         #endregion
 

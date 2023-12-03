@@ -13,7 +13,7 @@ namespace Delivery_Web.Controllers
     public class DishController : Controller
     {
         private static readonly HttpClient client = new HttpClient();
-
+        
         #region Dish Menu(home page)
         [HttpGet]
         public async Task<IActionResult> Index(int id, DishCategory[] category, bool vegetarian, DishSorting sorting)//, int page = 1)
@@ -70,31 +70,37 @@ namespace Delivery_Web.Controllers
             filterVM.sorting = sorting;
             filterVM.page = page;
             filterVM.vegetarian = vegetarian;
-            using (var client = new HttpClient())
-            {
-                TokenResponse tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(HttpContext.User.Claims.Where(w => w.Type == "token").First().Value);
-                var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", tokenResponse.Token);
-                client.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
-                HttpResponseMessage response = await client.GetAsync($"https://localhost:7279/api/dish?{categories}&sorting={sorting}&vegetarian={vegetarian}");
-                switch (response.StatusCode)
+            
+                try
                 {
-                    case (HttpStatusCode)500:
-                        {
-                            return NotFound();
-                        }
-                    case (HttpStatusCode)200:
-                        {
-                            string responseBody = await response.Content.ReadAsStringAsync();
-                            dishList = JsonConvert.DeserializeObject<DishPagedListDto>(responseBody);
-                            filterVM.dishPagedListDto = dishList;
-                            return View(filterVM);
-                        }
-                    default:
-                        {
-                            return NotFound();
-                        }
+                    //TokenResponse tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(HttpContext.User.Claims.Where(w => w.Type == "token").First().Value);
+                    //var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", tokenResponse.Token);
+                    //client.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
+                    HttpResponseMessage response = await client.GetAsync($"https://localhost:7279/api/dish?{categories}&sorting={sorting}&vegetarian={vegetarian}");
+                    switch (response.StatusCode)
+                    {
+                        case (HttpStatusCode)500:
+                            {
+                                return NotFound();
+                            }
+                        case (HttpStatusCode)200:
+                            {
+                                string responseBody = await response.Content.ReadAsStringAsync();
+                                dishList = JsonConvert.DeserializeObject<DishPagedListDto>(responseBody);
+                                filterVM.dishPagedListDto = dishList;
+                                return View(filterVM);
+                            }
+                        default:
+                            {
+                                return NotFound();
+                            }
+                    }
                 }
-            }
+                catch
+                {
+                    return NotFound();
+                }
+            
         }
         #endregion
 

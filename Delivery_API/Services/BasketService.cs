@@ -1,6 +1,7 @@
 ﻿using Delivery_API.Data;
 using Delivery_API.Exceptions;
 using Delivery_API.Services.IServices;
+using Delivery_Models.Models;
 using Delivery_Models.Models.Dto;
 using Delivery_Models.Models.Entity;
 using Microsoft.EntityFrameworkCore;
@@ -41,7 +42,11 @@ namespace Delivery_API.Services
 
             if (dish == null)
             {
-                throw new NotFoundException("Dish is not found");
+                throw new NotFoundException(new Response
+                {
+                    Status = "Error",
+                    Message = $"Dish with id = {dishId} don't in basket"
+                });
             }
 
             var baskets = await _context.Baskets.FirstOrDefaultAsync(x => x.UserId == userId && x.DishId == dishId);
@@ -71,14 +76,22 @@ namespace Delivery_API.Services
             var dish = await _context.Dishes.FirstOrDefaultAsync(d => d.Id == dishId);
             if (dish == null)
             {
-                throw new NotFoundException("Dish is not found");
+                throw new NotFoundException(new Response
+                {
+                    Status = "Error",
+                    Message = $"Dish with id = {dishId} don't in database"
+                });
             }
             var baskets =
                 await _context.Baskets.FirstOrDefaultAsync(x => x.UserId == userId && x.DishId == dishId);
 
             if (baskets == null)
             {
-                throw new NotFoundException("Dish is not in Basket");
+                throw new NotFoundException(new Response
+                {
+                    Status = "Error",
+                    Message = $"Dish with id = {dishId} don't in basket"
+                });
             }
 
             if (baskets.Amount == 1 || !increase)

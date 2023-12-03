@@ -31,18 +31,11 @@ namespace Delivery_API.Controllers
         /// <returns></returns>
         [HttpGet]
         [ProducesResponseType(typeof(IEnumerable<DishPagedListDto>), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(void),StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetDish([FromQuery] DishCategory[] categories, [FromQuery] DishSorting sorting,bool vegetarian, int page = 1)
+        public async Task<IActionResult> GetDish([FromQuery] DishCategory[] categories, [FromQuery] DishSorting sorting, bool vegetarian, int page = 1)
         {
-            try
-            {
-                return Ok(await _dishService.GetDish(categories, sorting, vegetarian, page));
-            }
-            catch
-            {
-                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
-            }
+            return Ok(await _dishService.GetDish(categories, sorting, vegetarian, page));
         }
         #endregion
 
@@ -58,14 +51,9 @@ namespace Delivery_API.Controllers
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> GetDishDetails(Guid id)
         {
-            try
-            {
-                return Ok(await _dishService.GetDishDetails(id));
-            }
-            catch
-            {
-                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
-            }
+
+            return Ok(await _dishService.GetDishDetails(id));
+
         }
         #endregion
 
@@ -76,22 +64,16 @@ namespace Delivery_API.Controllers
         /// <param name="id"></param>
         /// <returns></returns>
         [HttpGet("{id}/rating/check")]
-        [ProducesResponseType(typeof(bool),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> CheckRating(Guid id)
         {
-            try
-            {
-                var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
-                return Ok(await _dishService.CheckRating(id, userId));
-            }
-            catch
-            {
-                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
-            }
+            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+            return Ok(await _dishService.CheckRating(id, userId));
+
         }
         #endregion
 
@@ -103,7 +85,7 @@ namespace Delivery_API.Controllers
         /// <param name="ratingScore"></param>
         /// <returns></returns>
         [HttpPost("{id}/rating")]
-        [ProducesResponseType(typeof(void),StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
         [ProducesResponseType(typeof(void), StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
@@ -111,16 +93,11 @@ namespace Delivery_API.Controllers
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
         public async Task<IActionResult> SetRating(Guid id, int ratingScore)
         {
-            try
-            {
-                var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
-                await _dishService.SetRating(id, ratingScore, userId);
-                return Ok("Rating set successfully");
-            }
-            catch
-            {
-                return StatusCode(500, new Response { Status = "Error", Message = "Error in request" });
-            }
+
+            var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
+            await _dishService.SetRating(id, ratingScore, userId);
+            return Ok("Rating set successfully");
+
         }
         #endregion
 

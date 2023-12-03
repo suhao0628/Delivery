@@ -98,7 +98,7 @@ namespace Delivery_Web.Controllers
             if (response.StatusCode == HttpStatusCode.OK)
             {
                 TempData["success"] = "Delivery Confirmed";
-                return RedirectToAction("Index", "Basket");
+                return RedirectToAction("Index", "Order");
             }
             else
             {

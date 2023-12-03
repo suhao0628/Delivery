@@ -1,6 +1,7 @@
 ﻿using Delivery_API.Data;
 using Delivery_API.Exceptions;
 using Delivery_API.Services.IServices;
+using Delivery_Models.Models;
 using Delivery_Models.Models.Dto;
 using Delivery_Models.Models.Entity;
 using Delivery_Models.Models.Enum;
@@ -19,6 +20,15 @@ namespace Delivery_API.Services
 
         public async Task<OrderDto> GetOrderDetails(Guid orderId)
         {
+            var order = await _context.Orders.FindAsync(orderId);
+            if (order == null)
+            {
+                throw new NotFoundException(new Response
+                {
+                    Status = "Error",
+                    Message = $"Order with id = {orderId} don't in database"
+                });
+            }
             var carts = await _context.OrderBaskets.Where(w => w.OrderId == orderId).Include(w => w.Order).ToListAsync();
             if (!carts.Any())
             {
@@ -78,6 +88,14 @@ namespace Delivery_API.Services
 
         public async Task CreateOrder(OrderCreateDto orderCreateDto, Guid userId)
         {
+            if (orderCreateDto.DeliveryTime - DateTime.Now < TimeSpan.FromMinutes(60))
+            {
+                throw new BadRequestException(new Response
+                {
+                    Status = "Error",
+                    Message = "Invalid delivery time. Delivery time must be more than current datetime on 60 minutes"
+                });
+            }
             var baskets = await _context.Baskets.Where(b => b.UserId == userId).Include(b => b.Dish).ToListAsync();
             if (baskets.Any())
             {
@@ -124,27 +142,44 @@ namespace Delivery_API.Services
             }
             else
             {
-                throw new Exception();
+                throw new BadRequestException(new Response
+                {
+                    Status = "Error",
+                    Message = $"Empty basket for user with id={userId}"
+                });
             }
 
         }
 
         public async Task ConfirmDelivery(Guid orderId, Guid userId)
         {
-            var order = await _context.Orders.FindAsync(orderId);
-            if (order == null)
-            {
-                throw new NotFoundException("Order not found");
-            }
-
+            var order = await _context.Orders.FindAsync(orderId) ?? throw new NotFoundException(new Response
+                {
+                    Status = "Error",
+                    Message = $"Order with id = {orderId} don't in database"
+                });
             if (order.UserId != userId)
             {
-                throw new NotFoundException("Invalid order user");
+                throw new NotFoundException(new Response
+                {
+                    Status = "Error",
+                    Message = "Invalid Order User"
+                });
             }
-
-            order.Status = OrderStatus.Delivered;
-            _context.Update(order);
-            await _context.SaveChangesAsync();
+            if (order.Status == OrderStatus.Delivered)
+            {
+                throw new BadRequestException(new Response
+                {
+                    Status = "Error",
+                    Message = $"Can't update status for order with id = {orderId}"
+                });
+            }
+            else
+            {
+                order.Status = OrderStatus.Delivered;
+                _context.Update(order);
+                await _context.SaveChangesAsync();
+            }
         }
 
 
