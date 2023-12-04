@@ -161,7 +161,11 @@ namespace Delivery_API.Services
             }
             if (!await CheckRating(dishId, userId))
             {
-                throw new Exception("No rights to set rating");
+                throw new BadRequestException(new Response
+                {
+                    Status = "Error",
+                    Message = "User can't set rating on dish that wasn't ordered"
+                });
             }
 
             var rating = await _context.Ratings.FirstOrDefaultAsync(r => r.UserId == userId && r.DishId == dishId);

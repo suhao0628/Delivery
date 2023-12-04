@@ -1,15 +1,12 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Distributed;
 using Delivery_API.Services.IServices;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.Net.Http.Headers;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Delivery_Models.Models;
 using Delivery_Models.Models.Dto;
 using Microsoft.AspNetCore.Authentication.OAuth;
-using Delivery_API.Services;
 using Microsoft.Extensions.Primitives;
 using Microsoft.EntityFrameworkCore.Storage;
 

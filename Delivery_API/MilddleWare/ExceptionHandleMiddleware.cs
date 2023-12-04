@@ -26,7 +26,7 @@ namespace Delivery_API.Middleware
             }
             catch (NotFoundException ex)
             {
-                context.Response.StatusCode = StatusCodes.Status400BadRequest;
+                context.Response.StatusCode = StatusCodes.Status404NotFound;
                 context.Response.ContentType = "application/json";
 
                 var response = new Response { Status = ex.ErrorResponse.Status, Message = ex.ErrorResponse.Message };

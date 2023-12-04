@@ -17,11 +17,6 @@ namespace Delivery_API
             CreateMap<Basket, DishBasketDto>().ReverseMap();
 
             CreateMap<Order, OrderCreateDto>().ReverseMap();
-           // CreateMap<List<OrderInfoDto>, List<Order>>().ReverseMap();
-            //CreateMap<List<DishBasketDto>, List <OrderBasket>>().ReverseMap();
-            
-
-
         }
     }
 }

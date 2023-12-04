@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.ComponentModel.DataAnnotations;
 
 namespace Delivery_API.Controllers
 {
@@ -91,7 +92,7 @@ namespace Delivery_API.Controllers
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(Response), StatusCodes.Status500InternalServerError)]
         [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
-        public async Task<IActionResult> SetRating(Guid id, int ratingScore)
+        public async Task<IActionResult> SetRating(Guid id, [Range(0, 10)] int ratingScore)
         {
 
             var userId = Guid.Parse(User.Claims.Where(w => w.Type == "UserId").First().Value);
