@@ -33,7 +33,7 @@ namespace Delivery_API.Middleware
                 var jsonResponse = JsonConvert.SerializeObject(response);
                 await context.Response.WriteAsync(jsonResponse);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 context.Response.StatusCode = StatusCodes.Status500InternalServerError;
             }

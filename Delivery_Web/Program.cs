@@ -1,4 +1,7 @@
+using Delivery_API.Data;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,9 +12,17 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
                 .AddCookie(CookieAuthenticationDefaults.AuthenticationScheme, o =>
                 {
-                    o.LoginPath = new PathString("/User/Login");
-                    o.AccessDeniedPath = new PathString("/User/Login");
+                    o.LoginPath = new PathString("/Authentication/Login");
+                    o.AccessDeniedPath = new PathString("/Authentication/Login");
                 });
+
+
+
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminPolicy", policy => policy.RequireRole("Admin")); 
+});
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

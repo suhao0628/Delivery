@@ -11,6 +11,10 @@ using System.Reflection;
 using System.Text;
 using System.Text.Json.Serialization;
 using Delivery_API.Middleware;
+using Microsoft.VisualBasic;
+using System.Security.Claims;
+using Delivery_Models.Models;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -112,7 +116,22 @@ builder.Services.AddAuthentication
     };
 });
 
-
+builder.Services.AddAuthorization(options =>
+{
+    options.AddPolicy("AdminPolicy", policy =>
+    {
+        policy.RequireAssertion(context =>
+        {
+            var roleClaim = context.User.FindFirst(c => c.Type == ClaimTypes.Role);
+            if (roleClaim != null)
+            {
+                var userRole = roleClaim.Value;
+                return userRole == Roles.Admin;
+            }
+            return false;
+        });
+    });
+});
 
 
 var app = builder.Build();

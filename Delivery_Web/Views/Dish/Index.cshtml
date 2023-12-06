@@ -34,15 +34,14 @@
                                                 
                                 </div>
                                 <div class="col-md-3 mb-1">
-                                    
                                     <div class="form-check form-switch">
-                                        <input name="vegetarian" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault">
+                                        <input name="vegetarian" class="form-check-input" type="checkbox" role="switch" id="flexSwitchCheckDefault" value="false">
                                         
                                         <label class="form-check-label" for="flexSwitchCheckDefault" id="veganLabel"><b>Show Vegan Dishes</b></label>
                                         
                                     </div>
                                 </div>
-                               
+                                
                                 <div class="col-md-3 mb-1 text-md-end">
                                     <button type="submit" class="btn btn-primary float-right">Apply Filters</button>
                                 </div>
@@ -64,7 +63,7 @@
                                         }
                                         else
                                         {
-                                            <img src="https://placehold.co/500x600/png" class="card-img-top rounded" />
+                                        <img src="https://placehold.co/600x400" class="card-img-top rounded" />
                                         }
 
                                         <div class="card-body pb-0">
@@ -85,7 +84,6 @@
                                             </div>
                                             <div class="pl-1">
                                                 <p class="text-dark text-opacity-75 text-center">
-                                                    As low as:
                                                     <span>
                                                         Price - @item.Price
                                                     </span>
@@ -146,15 +144,18 @@
         });
 
         const switchElement = document.getElementById('flexSwitchCheckDefault');
-        const labelElement = document.getElementById('veganLabel');
+        //const labelElement = document.getElementById('veganLabel');
+        const hiddenField = document.getElementById('hiddenVegetarianField');
 
         switchElement.addEventListener('change', function () {
             if (this.checked) {
                 switchElement.classList.add('bg-secondary')
-                labelElement.classList.add('text-warning');
+                //labelElement.classList.add('text-warning');
+                switchElement.value="true"
             } else {
                 switchElement.classList.remove('bg-secondary')
-                labelElement.classList.remove('text-warning');
+                //labelElement.classList.remove('text-warning');
+                switchElement.value="false"
             }
         });
 

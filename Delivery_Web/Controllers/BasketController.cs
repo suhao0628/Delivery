@@ -6,6 +6,7 @@ using Delivery_Models.Models.Dto;
 using Delivery_Models.Models;
 using Delivery_Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 
 namespace Delivery_Web.Controllers
 {
@@ -18,7 +19,10 @@ namespace Delivery_Web.Controllers
             List<DishBasketDto> dishInBasket = new();
             using (var client = new HttpClient())
             {
-                TokenResponse tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(User.Claims.First(w => w.Type == "token").Value);
+                var token = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "token")?.Value;
+                var role = HttpContext.User.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
+
+                TokenResponse tokenResponse = JsonConvert.DeserializeObject<TokenResponse>(User.Claims.FirstOrDefault(w => w.Type == "token").Value);
                 client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", tokenResponse.Token);
                 HttpResponseMessage response = await client.GetAsync($"https://localhost:7279/api/basket");
 
@@ -28,6 +32,7 @@ namespace Delivery_Web.Controllers
 
             }
         }
+
         #endregion
 
         #region Remove/Decrease dish

@@ -25,6 +25,8 @@ namespace Delivery_API.Services
             var claimsList = new List<Claim>
                 {
                     new Claim("UserId",user.Id.ToString()),
+                    new Claim(ClaimTypes.Role, user.Role)
+
                 };
             //Token
             var expires = DateTime.Now.AddMinutes(jwtConfig.Expires);

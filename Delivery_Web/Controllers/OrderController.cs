@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Delivery_Models.Models.Dto;
 using Delivery_Models.Models;
 using Delivery_Models.ViewModels;
+using System.Security.Claims;
 
 namespace Delivery_Web.Controllers
 {
@@ -20,10 +21,11 @@ namespace Delivery_Web.Controllers
             string responseBody = "";
 
             List<OrderDto> orderListViewModels = new List<OrderDto>();
-
             TokenResponse tokenJsonViewModel = JsonConvert.DeserializeObject<TokenResponse>(HttpContext.User.Claims.Where(w => w.Type == "token").First().Value);
             var authenticationHeaderValue = new AuthenticationHeaderValue("Bearer", tokenJsonViewModel.Token);
             client.DefaultRequestHeaders.Authorization = authenticationHeaderValue;
+            //var token = HttpContext.User.Claims.FirstOrDefault(c => c.Type == "token")?.Value;
+            //client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
             HttpResponseMessage response = await client.GetAsync($"https://localhost:7279/api/order");
             switch (response.StatusCode)
             {

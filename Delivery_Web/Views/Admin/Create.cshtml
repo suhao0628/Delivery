@@ -1,0 +1,82 @@
+﻿@using Delivery_Models.Models.Enum;
+@model DishDto
+<div class="card shadow border-0 mt-4">
+    <div class="card-header bg-secondary bg-gradient ml-0 py-4">
+        <div class="row">
+            <div class="col-12 text-center">
+                <h2 class="py-2 text-white">Create Dish</h2>
+            </div>
+        </div>
+    </div>
+    <div class="card-body p-4">
+        <div class="row pt-3">
+            <div class="col-md-12">
+                <form id="registerForm" class="row" method="post">
+                    <div asp-validation-summary="ModelOnly" class="text-danger" role="alert"></div>
+                    <div class="form-floating mb-3 col-md-12">
+                        <input asp-for="Name" class="form-control" placeholder="Name" />
+                        <label asp-for="Name" class="ms-2 text-muted">Name</label>
+                        <span asp-validation-for="Name" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3 col-md-12">
+                        <textarea asp-for="Description" class="form-control"></textarea>
+                        <label asp-for="Description" class="ms-2 text-muted">Description</label>
+                        <span asp-validation-for="Description" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3 col-md-6">
+                        <input asp-for="Price" class="form-control" placeholder="" />
+                        <label asp-for="Price" class="ms-2 text-muted">Price</label>
+                        <span asp-validation-for="Price" class="text-danger"></span>
+                    </div>
+                    <div class="form-floating mb-3 col-md-6">
+                        <select asp-for="Category" asp-items="@Html.GetEnumSelectList(typeof(DishCategory))" class="form-select">
+                            <option disabled selected>-Select Category-</option>
+                        </select>
+
+                    </div>
+                    <div class="form-floating mb-3 col-md-6">
+                        <select asp-for="Vegetarian"  class="form-select">
+                            <option disabled selected>-Select Vegetarian-</option>
+                            <option>true</option>
+                            <option>false</option>
+                        </select>
+                    </div>
+                    <div class="form-floating mb-3 col-md-6">
+                        <select asp-for="Rating" class="form-select">
+                            <option disabled selected>-Set Rating-</option>
+                            @for(int i = 0; i <= 10; i++)
+                            {
+                                <option>@i</option>
+                            }
+                        </select>
+                    </div>
+                    <div class="form-floating mb-3 col-md-12">
+                        <input type="file" name="files" class="form-control" />
+                        <label asp-for="Image" class="ms-2 text-muted">Image</label>
+                        <span asp-validation-for="Image" class="text-danger"></span>
+                    </div>
+                   
+
+                    
+
+                    <div class="col-6">
+                        <button id="registerSubmit" type="submit" class="w-100 btn btn-lg btn-primary">Create</button>
+                    </div>
+                    <div class="col-6">
+                        <a asp-controller="Dish" asp-action="Index" class="btn btn-secondary border  form-control">
+                            Back to Menu
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <style>
+        textarea {
+            min - height: 3em;
+        }
+    </style>
+}

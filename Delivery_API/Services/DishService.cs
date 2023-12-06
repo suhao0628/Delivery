@@ -198,5 +198,62 @@ namespace Delivery_API.Services
 
             await _context.SaveChangesAsync();
         }
+
+        #region admin features
+        public async Task<Dish> CreateDish(DishDto dishDto)
+        {
+            var dish = new Dish
+            {
+                Id = Guid.NewGuid(),
+                Name = dishDto.Name,
+                Description = dishDto.Description,
+                Price = dishDto.Price,
+                Category = dishDto.Category,
+                Vegetarian = dishDto.Vegetarian,
+                Image = dishDto.Image,
+                Rating = dishDto.Rating,
+            };
+            await _context.Dishes.AddAsync(dish);
+            await _context.SaveChangesAsync();
+            return dish;
+        }
+        public async Task UpdateDish(Guid dishId, DishDto dishDto)
+        {
+            var dish = await _context.Dishes.FirstOrDefaultAsync(d => d.Id == dishId);
+            if (dish == null)
+            {
+                throw new NotFoundException(new Response
+                {
+                    Status = "Error",
+                    Message = $"Dish with id = {dishId} don't in database"
+                });
+            }
+            dish.Name = dishDto.Name;
+            dish.Description = dishDto.Description;
+            dish.Price = dishDto.Price;
+            dish.Category = dishDto.Category;
+            dish.Vegetarian = dishDto.Vegetarian;
+            dish.Image = dishDto.Image;
+            dish.Rating = dishDto.Rating;
+
+            _context.Dishes.Update(dish);
+            await _context.SaveChangesAsync();
+        }
+
+        public async Task DeleteDish(Guid dishId)
+        {
+            var dish = await _context.Dishes.FirstOrDefaultAsync(d => d.Id == dishId);
+            if (dish == null)
+            {
+                throw new NotFoundException(new Response
+                {
+                    Status = "Error",
+                    Message = $"Dish with id = {dishId} don't in database"
+                });
+            }
+            _context.Dishes.Remove(dish);
+            await _context.SaveChangesAsync();
+        }
+        #endregion
     }
 }
